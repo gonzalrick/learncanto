@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>講廣東話 — Conversational Cantonese</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&family=Noto+Serif+HK:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#161210;
+    --surf:#211b15;
+    --surf2:#2a231b;
+    --raise:#332a20;
+    --paper:#f1e9db;
+    --muted:#b6a98f;
+    --faint:#8a7e6a;
+    --line:rgba(241,233,219,.13);
+    --line-2:rgba(241,233,219,.07);
+    --coral:#ff7a5c;
+    --coral-soft:#ffb09c;
+    --mint:#58d3a6;
+    --gold:#f0bd5a;
+    /* tone code — brightened for dark ground */
+    --t1:#ff8d7b; --t2:#f0bd5a; --t3:#cabda6; --t4:#58d3a6; --t5:#74c2ff; --t6:#c79bff;
+    --glow:0 0 0 1px var(--line), 0 18px 40px -22px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"Inter",system-ui,sans-serif;color:var(--paper);
+    background:
+      radial-gradient(90% 60% at 100% -5%, rgba(255,122,92,.14), transparent 60%),
+      radial-gradient(90% 60% at -10% 105%, rgba(88,211,166,.12), transparent 60%),
+      var(--bg);
+    min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .hz{font-family:"Noto Serif HK","Noto Sans HK",serif}
+  .jp{font-family:"Space Mono",ui-monospace,monospace}
+  .display{font-family:"Bricolage Grotesque","Inter",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.02}
+  .wrap{max-width:780px;margin:0 auto;padding:0 18px 130px}
+
+  /* header */
+  header{padding:28px 0 12px}
+  .eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--coral);font-weight:600}
+  .title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:8px}
+  h1.display{font-size:clamp(30px,7.5vw,50px)}
+  h1 .sub{display:block;font-family:"Noto Serif HK",serif;font-weight:900;font-size:.6em;letter-spacing:0;margin-top:4px;
+    background:linear-gradient(90deg,var(--coral),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lvl{display:flex;align-items:center;gap:13px;background:var(--surf);border:1px solid var(--line);border-radius:15px;padding:11px 15px}
+  .lvl svg{flex:0 0 auto}
+  .lvl .t{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:15px;line-height:1.15}
+  .lvl .t small{display:block;font-family:"Inter",sans-serif;font-weight:500;font-size:11px;color:var(--faint);letter-spacing:.04em}
+
+  .ribbon{display:flex;align-items:center;gap:14px;margin-top:16px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:13px 16px}
+  .ribbon .meta{flex:1 1 auto;min-width:0}
+  .ribbon .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px}
+  .ribbon small{color:var(--faint);font-size:12.5px}
+  .reset-btn{background:none;border:1px solid var(--line);color:var(--faint);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+  .reset-btn:hover{border-color:var(--coral);color:var(--coral)}
+
+  /* tabs */
+  nav.tabs{position:sticky;top:0;z-index:20;margin:18px 0 22px;padding:9px 0;
+    background:linear-gradient(var(--bg),var(--bg) 68%, transparent)}
+  .tabs-inner{display:flex;gap:5px;background:var(--surf2);border:1px solid var(--line);border-radius:13px;padding:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{flex:1 0 auto;white-space:nowrap;border:none;background:none;font-family:inherit;font-weight:600;font-size:13.5px;color:var(--muted);
+    padding:9px 13px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:7px}
+  .tab .ji{font-family:"Noto Serif HK",serif;font-size:13px;opacity:.5}
+  .tab[aria-selected="true"]{background:var(--paper);color:#1a140f}
+  .tab[aria-selected="true"] .ji{opacity:.9;color:var(--coral)}
+  .tab:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+
+  .panel{display:none;animation:fade .35s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .lead{color:var(--muted);font-size:15px;margin-bottom:18px;max-width:62ch}
+  .lead b{color:var(--coral-soft);font-weight:600}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .chip{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--surf);color:var(--muted);
+    border-radius:99px;padding:8px 14px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
+  .chip .cnt{font-size:11px;color:var(--faint);font-weight:500}
+  .chip[aria-pressed="true"]{background:var(--paper);color:#1a140f;border-color:var(--paper)}
+  .chip[aria-pressed="true"] .cnt{color:#7a6b56}
+  .chip:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+
+  .deckbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .bar{flex:1 1 auto;height:7px;background:var(--surf2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));width:0;transition:width .4s}
+  .deckbar small{font-size:12px;color:var(--faint);white-space:nowrap;font-weight:500}
+
+  /* learn rows */
+  .row{display:flex;align-items:flex-start;gap:14px;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px}
+  .row.known{background:linear-gradient(var(--surf2),var(--surf2));border-color:rgba(88,211,166,.3)}
+  .row .han{font-family:"Noto Serif HK",serif;font-weight:700;font-size:26px;line-height:1.15;color:var(--paper);flex:0 0 auto;min-width:1.1em;padding-top:1px}
+  .row .txt{flex:1 1 auto;min-width:0}
+  .row .roman{font-size:14.5px;letter-spacing:.01em;color:var(--coral-soft)}
+  .row .en{font-size:14px;margin-top:2px}
+  .row .note{font-size:12.5px;color:var(--faint);margin-top:4px;font-style:italic}
+  .row .acts{display:flex;flex-direction:column;gap:7px;flex:0 0 auto}
+  .icirc{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--surf2);display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:.15s}
+  .icirc:hover{border-color:var(--mint);color:var(--mint)}
+  .icirc.play:hover{border-color:var(--coral);color:var(--coral)}
+  .icirc.mark.on{background:var(--mint);border-color:var(--mint);color:#10241c}
+  .icirc:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+  .icirc svg{width:18px;height:18px}
+
+  .t1{color:var(--t1)} .t2{color:var(--t2)} .t3{color:var(--t3)}
+  .t4{color:var(--t4)} .t5{color:var(--t5)} .t6{color:var(--t6)}
+  .roman .tn{font-weight:700}
+
+  /* ---- particle builder (signature) ---- */
+  .builder{background:
+      radial-gradient(120% 100% at 50% 0%, rgba(255,122,92,.12), transparent 60%),
+      var(--surf);
+    border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--glow);margin-bottom:14px}
+  .builder .cap{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--coral);font-weight:600;margin-bottom:12px}
+  .seg{display:inline-flex;background:var(--surf2);border:1px solid var(--line);border-radius:11px;padding:4px;margin-bottom:18px}
+  .seg button{border:none;background:none;font-family:inherit;font-weight:600;font-size:13px;color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--coral);color:#2a140d}
+  .stage{text-align:center;padding:14px 6px 20px}
+  .stage .han{font-family:"Noto Serif HK",serif;font-weight:900;font-size:clamp(40px,11vw,62px);line-height:1.1;color:var(--paper);
+    text-shadow:0 0 26px rgba(255,122,92,.35);transition:.2s}
+  .stage .han .pp{color:var(--coral)}
+  .stage .roman{font-family:"Space Mono",monospace;font-size:clamp(15px,4.5vw,19px);color:var(--coral-soft);margin-top:12px}
+  .stage .vibe{font-size:15px;color:var(--paper);margin-top:12px;min-height:1.4em}
+  .stage .speak{margin-top:16px;border:1px solid var(--line);background:var(--surf2);color:var(--paper);border-radius:11px;
+    padding:9px 18px;font-family:inherit;font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .stage .speak:hover{border-color:var(--coral);color:var(--coral)}
+  .stage .speak svg{width:16px;height:16px}
+  .pgrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .pbtn{font-family:"Noto Serif HK",serif;font-weight:700;font-size:20px;min-width:48px;height:48px;padding:0 10px;
+    border:1px solid var(--line);background:var(--surf2);color:var(--paper);border-radius:12px;cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:center;line-height:1}
+  .pbtn small{font-family:"Space Mono",monospace;font-size:10px;color:var(--faint);font-weight:400;margin-left:5px}
+  .pbtn:hover{border-color:var(--coral)}
+  .pbtn[aria-pressed="true"]{background:var(--coral);border-color:var(--coral);color:#2a140d}
+  .pbtn[aria-pressed="true"] small{color:#5c2a1c}
+  .builder-note{font-size:12.5px;color:var(--faint);text-align:center;margin-top:14px}
+
+  /* particle reference cards */
+  .pref{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+  .pcard{background:var(--surf);border:1px solid var(--line);border-radius:15px;padding:15px}
+  .pcard .top{display:flex;align-items:baseline;gap:10px;margin-bottom:7px}
+  .pcard .ch{font-family:"Noto Serif HK",serif;font-weight:900;font-size:30px;color:var(--coral);line-height:1}
+  .pcard .jpn{font-family:"Space Mono",monospace;font-weight:700;font-size:14px;color:var(--coral-soft)}
+  .pcard .gl{font-size:13.5px;color:var(--paper);font-weight:500}
+  .pcard .ex{display:flex;align-items:center;gap:9px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line-2)}
+  .pcard .ex .exh{font-family:"Noto Serif HK",serif;font-size:17px}
+  .pcard .ex .exi{flex:1 1 auto;min-width:0}
+  .pcard .ex .exr{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted)}
+  .pcard .ex .exe{font-size:12.5px;color:var(--faint)}
+  .pcard .ex button{flex:0 0 auto;width:32px;height:32px;border:1px solid var(--line);background:var(--surf2);border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+  .pcard .ex button:hover{border-color:var(--coral);color:var(--coral)}
+  .pcard .ex button svg{width:14px;height:14px}
+
+  /* patterns */
+  .pat{background:var(--surf);border:1px solid var(--line);border-radius:15px;padding:16px 17px;margin-bottom:10px}
+  .pat .frame{font-family:"Noto Serif HK",serif;font-weight:700;font-size:23px;line-height:1.25;color:var(--paper)}
+  .pat .frame .slot{color:var(--coral);border-bottom:2px dashed rgba(255,122,92,.5);padding:0 3px}
+  .pat .pj{font-family:"Space Mono",monospace;font-size:13px;color:var(--coral-soft);margin-top:5px}
+  .pat .pm{font-size:14px;color:var(--paper);margin-top:6px}
+  .pat .pm b{color:var(--gold);font-weight:600}
+  .pat .eg{display:flex;align-items:center;gap:10px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line-2)}
+  .pat .eg .egt{flex:1 1 auto;min-width:0}
+  .pat .eg .egh{font-family:"Noto Serif HK",serif;font-size:18px}
+  .pat .eg .egr{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted)}
+  .pat .eg .ege{font-size:12.5px;color:var(--faint)}
+  .pat .eg button{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);background:var(--surf2);border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+  .pat .eg button:hover{border-color:var(--coral);color:var(--coral)}
+  .pat .eg button svg{width:15px;height:15px}
+
+  /* flashcards */
+  .fc-stage{perspective:1200px;margin:6px 0 16px}
+  .flashcard{position:relative;width:100%;min-height:280px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;border:1px solid var(--line);background:var(--surf);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;text-align:center;box-shadow:var(--glow)}
+  .face.front .han{font-family:"Noto Serif HK",serif;font-weight:700;font-size:clamp(38px,11vw,64px);line-height:1.15;color:var(--paper)}
+  .face.front .hint{margin-top:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .face.back{transform:rotateY(180deg);background:linear-gradient(160deg,#2a201a,#1d1712);border-color:rgba(255,122,92,.3)}
+  .face.back .roman{font-family:"Space Mono",monospace;font-size:clamp(20px,5.5vw,27px);color:var(--coral-soft);font-weight:700}
+  .face.back .en{margin-top:12px;font-size:18px}
+  .face.back .nt{margin-top:10px;font-size:13px;color:var(--faint);font-style:italic;max-width:34ch}
+  .face .corner{position:absolute;top:14px;left:16px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .fc-controls{display:flex;gap:10px}
+  .fc-controls button{flex:1;font-family:inherit;font-weight:600;font-size:14px;border-radius:12px;padding:13px;cursor:pointer;border:1px solid var(--line);background:var(--surf);color:var(--paper)}
+  .fc-controls .again{color:var(--coral-soft);border-color:rgba(255,122,92,.4)}
+  .fc-controls .again:hover{background:var(--coral);color:#2a140d;border-color:var(--coral)}
+  .fc-controls .got{color:var(--mint);border-color:rgba(88,211,166,.4)}
+  .fc-controls .got:hover{background:var(--mint);color:#10241c;border-color:var(--mint)}
+  .fc-meta{text-align:center;font-size:12.5px;color:var(--faint);margin:8px 0 6px}
+
+  /* quiz */
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .quiz-head .score{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:19px}
+  .quiz-head .score span{color:var(--coral)}
+  .qprompt{background:var(--surf);border:1px solid var(--line);border-radius:18px;box-shadow:var(--glow);padding:26px;text-align:center;margin-bottom:14px}
+  .qprompt .qlabel{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+  .qprompt .han{font-family:"Noto Serif HK",serif;font-weight:700;font-size:clamp(34px,10vw,54px);color:var(--paper);line-height:1.15}
+  .qprompt .roman{font-family:"Space Mono",monospace;font-size:16px;color:var(--coral-soft);margin-top:10px}
+  .opts{display:grid;gap:9px}
+  .opt{font-family:inherit;font-size:15px;text-align:left;border:1px solid var(--line);background:var(--surf);color:var(--paper);border-radius:13px;padding:14px 16px;cursor:pointer;transition:.12s}
+  .opt:hover:not(:disabled){border-color:var(--paper)}
+  .opt:disabled{cursor:default}
+  .opt.correct{background:rgba(88,211,166,.16);border-color:var(--mint);color:var(--mint);font-weight:600}
+  .opt.wrong{background:rgba(255,122,92,.16);border-color:var(--coral);color:var(--coral-soft)}
+  .opt:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+  .qnext{margin-top:14px;width:100%;font-family:inherit;font-weight:700;font-size:15px;border:none;background:var(--paper);color:#1a140f;border-radius:13px;padding:15px;cursor:pointer}
+  .qnext:disabled{opacity:.35;cursor:default}
+  .quiz-done{text-align:center;background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:34px 24px;box-shadow:var(--glow)}
+  .quiz-done .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:52px;color:var(--mint);line-height:1}
+  .quiz-done .han{font-family:"Noto Serif HK",serif;font-size:30px;color:var(--coral);margin:10px 0}
+  .quiz-done p{color:var(--muted);margin:8px 0 18px}
+  .quiz-done button{font-family:inherit;font-weight:700;border:none;background:var(--paper);color:#1a140f;border-radius:12px;padding:13px 26px;cursor:pointer}
+
+  .tips{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:17px 19px;margin-top:14px}
+  .tips h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+  .tips h3 .dot{width:8px;height:8px;border-radius:2px;background:var(--coral);transform:rotate(45deg)}
+  .tips ul{list-style:none;display:grid;gap:9px}
+  .tips li{font-size:13.5px;color:var(--muted);padding-left:18px;position:relative}
+  .tips li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .tips code{font-family:"Space Mono",monospace;background:var(--surf2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px;color:var(--coral-soft)}
+
+  footer{text-align:center;color:var(--faint);font-size:12px;margin-top:30px;line-height:1.7}
+  footer .hz{color:var(--mint)}
+  @media (max-width:480px){ .row .han{font-size:23px} }
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;transition-duration:.001ms!important} }
+</style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#161210">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cantonese">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
+</head>
+<body>
+<style>
+.cv-back{position:fixed;left:14px;bottom:14px;z-index:99998;width:44px;height:44px;border-radius:50%;
+display:grid;place-items:center;background:#1d1d2e;color:#eef0fb;text-decoration:none;
+box-shadow:0 8px 22px -10px rgba(0,0,0,.6);transition:background .14s}
+.cv-back:hover{background:#2a2a42}
+.cv-back:active{transform:scale(.94)}
+.cv-back svg{width:20px;height:20px}
+</style>
+<a class="cv-back" href="/index.html" aria-label="Back to home" title="Back to home">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Level 2 · sound like a local</div>
+    <div class="title-row">
+      <h1 class="display">Conversational<br>Cantonese<span class="sub hz">講廣東話</span></h1>
+      <div class="lvl">
+        <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+          <circle cx="23" cy="23" r="19" fill="none" stroke="var(--line)" stroke-width="5"/>
+          <circle id="ringFg" cx="23" cy="23" r="19" fill="none" stroke="var(--coral)" stroke-width="5"
+            stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 23 23)"/>
+        </svg>
+        <div class="t"><span id="lvlPct">0%</span><small>internalised</small></div>
+      </div>
+    </div>
+    <div class="ribbon">
+      <div class="meta">
+        <div class="big"><span id="knownCount">0</span> / <span id="totalCount">0</span> phrases &amp; particles owned</div>
+        <small id="progNote">Mark a line ✓ once you could actually say it. Saves automatically.</small>
+      </div>
+      <button class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <div class="tabs-inner" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="particles"><span class="ji">語</span>Particles</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="phrases"><span class="ji">句</span>Phrases</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="patterns"><span class="ji">式</span>Patterns</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="cards"><span class="ji">咭</span>Cards</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="quiz"><span class="ji">測</span>Quiz</button>
+    </div>
+  </nav>
+
+  <!-- PARTICLES (signature) -->
+  <section class="panel active" id="panel-particles" role="tabpanel">
+    <p class="lead">Sentence-final particles are what make Cantonese sound Cantonese. The <b>words don't change</b> — the particle changes the whole feeling. Pick a base sentence, then tap particles to feel the mood shift.</p>
+    <div class="builder">
+      <div class="cap">Particle lab</div>
+      <div class="seg" id="builderSeg" role="group" aria-label="Base sentence"></div>
+      <div class="stage">
+        <div class="han" id="bHan"></div>
+        <div class="roman jp" id="bRoman"></div>
+        <div class="vibe" id="bVibe"></div>
+        <button class="speak" id="bSpeak"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg> Hear it</button>
+      </div>
+      <div class="pgrid" id="builderParts"></div>
+      <div class="builder-note">Same six words, six completely different vibes. That's the whole game.</div>
+    </div>
+    <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;margin:22px 0 12px">The particles worth knowing</h3>
+    <div class="pref" id="prefGrid"></div>
+    <div class="tips">
+      <h3><span class="dot"></span>Three rules of thumb</h3>
+      <ul>
+        <li>Don't translate them — feel them. <code>啦 laa1</code> is a friendly push; <code>喇 laa3</code> means something just changed.</li>
+        <li><code>嘅 ge3</code> comes before other particles; question particles like <code>咩 me1</code> and <code>呀 aa3</code> come last.</li>
+        <li>Start with just <code>呀 aa3</code>, <code>啦 laa1</code> and <code>咩 me1</code>. Even those three make you sound far more natural.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PHRASES -->
+  <section class="panel" id="panel-phrases" role="tabpanel">
+    <p class="lead">The connective tissue of real conversation: opinions, connectors, reactions, idioms, plans and feelings. Tap ▶ to hear it, ✓ when you could say it unprompted. Notes explain the nuance.</p>
+    <div class="chips" id="learnChips"></div>
+    <div class="deckbar"><div class="bar"><i id="learnBar"></i></div><small id="learnBarLbl"></small></div>
+    <div id="learnList"></div>
+  </section>
+
+  <!-- PATTERNS -->
+  <section class="panel" id="panel-patterns" role="tabpanel">
+    <p class="lead">Reusable sentence frames. Learn the skeleton once, then drop any words into the <span style="color:var(--coral)">slot</span> and you can build hundreds of sentences. Tap ▶ to hear the example.</p>
+    <div id="patternList"></div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="panel" id="panel-cards" role="tabpanel">
+    <p class="lead">Flashcards over the phrase decks. See the characters, recall it, then flip.</p>
+    <div class="chips" id="cardChips"></div>
+    <div class="fc-meta" id="fcMeta"></div>
+    <div class="fc-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flip card">
+        <div class="face front"><span class="corner" id="fcCorner"></span><div class="han" id="fcHan"></div><div class="hint">tap to flip</div></div>
+        <div class="face back"><span class="corner">jyutping · meaning</span><div class="roman jp" id="fcRoman"></div><div class="en" id="fcEn"></div><div class="nt" id="fcNote"></div></div>
+      </div>
+    </div>
+    <div class="fc-controls"><button class="again" id="fcAgain">↻ Review again</button><button class="got" id="fcGot">✓ Got it</button></div>
+    <p class="fc-meta">Press <strong>Space</strong> to flip, <strong>P</strong> to hear it.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="panel-quiz" role="tabpanel">
+    <p class="lead">Read the Cantonese, pick the meaning. Ten questions per deck.</p>
+    <div class="chips" id="quizChips"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <footer>
+    Companion to the Basics app · keep going — <span class="hz">講多啲</span> (gong2 do1 di1 — say a bit more!)<br>
+    Audio uses your device's Cantonese voice if it has one; quality varies by device.
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA  (verified jyutping + nuance)
+============================================================ */
+const DECKS = [
+  { id:"opinion", name:"Opinions", han:"表態", cards:[
+    ["我覺得…","ngo5 gok3 dak1","I think / I feel…","Lead an opinion, then add your view."],
+    ["我諗…","ngo5 nam2","I think… / I reckon…","諗 (nam2) is the everyday verb 'to think'."],
+    ["我同意","ngo5 tung4 ji3","I agree",""],
+    ["我唔同意","ngo5 m4 tung4 ji3","I disagree",""],
+    ["真係㗎?","zan1 hai6 gaa4","Really?!","㗎 rises to gaa4 when you're checking in surprise."],
+    ["係咩?","hai6 me1","Is that so? / Really?","咩 me1 turns a statement into a surprised question."],
+    ["唔錯喎","m4 co3 wo3","Not bad, actually!","喎 wo3 flags it as a fresh, noticed judgement."],
+    ["麻麻哋","maa4 maa2 dei2","So-so / meh",""],
+    ["梗係啦","gang2 hai6 laa1","Of course! / Obviously","啦 keeps it friendly, not snarky."],
+    ["無所謂","mou4 so2 wai6","I don't mind / either way's fine",""],
+  ]},
+  { id:"connect", name:"Connectors", han:"連接", cards:[
+    ["不過","bat1 gwo3","but / however",""],
+    ["但係","daan6 hai6","but",""],
+    ["因為","jan1 wai6","because",""],
+    ["所以","so2 ji5","so / therefore",""],
+    ["然後","jin4 hau6","then / after that",""],
+    ["其實","kei4 sat6","actually / in fact","Great for softening a correction."],
+    ["例如","lai6 jyu4","for example",""],
+    ["而且","ji4 ce2","and what's more",""],
+    ["雖然","seoi1 jin4","although",""],
+    ["即係","zik1 hai6","that is / I mean / like","The all-purpose 'you know, like' filler."],
+  ]},
+  { id:"react", name:"Reactions", han:"反應", cards:[
+    ["係啦","hai6 laa3","yeah / that's right","Agreeing, with a settled feeling."],
+    ["唔係呀嘛","m4 hai6 aa3 maa3","no way / you're kidding","Disbelief."],
+    ["哎呀","aai1 jaa3","oops / oh no / ugh",""],
+    ["點算?","dim2 syun3","what do we do? / now what?",""],
+    ["隨便啦","ceoi4 bin2 laa1","whatever / up to you",""],
+    ["算啦","syun3 laa1","forget it / let it go",""],
+    ["都係嘅","dou1 hai6 ge3","yeah, true / fair point",""],
+    ["等陣","dang2 zan6","hold on / wait a sec",""],
+    ["唔好意思","m4 hou2 ji3 si3","excuse me / sorry (mild)",""],
+  ]},
+  { id:"idiom", name:"Idioms", han:"口語", cards:[
+    ["搞掂","gaau2 dim6","done / sorted / handled","Hugely common — 'all sorted'."],
+    ["差唔多","caa1 m4 do1","almost / about / roughly",""],
+    ["慢慢嚟","maan6 maan2 lai4","take it slow / no rush",""],
+    ["冇問題","mou5 man6 tai4","no problem",""],
+    ["睇情況","tai2 cing4 fong3","it depends",""],
+    ["求其","kau4 kei4","casually / whatever's easiest",""],
+    ["得閒","dak1 haan4","to be free (have time)",""],
+    ["大把","daai6 baa2","loads / plenty",""],
+    ["唔使急","m4 sai2 gap1","no need to rush",""],
+    ["死喇","sei2 laa3","oh no / I'm done for","Playful 'oh crap', rarely literal."],
+  ]},
+  { id:"plans", name:"Making plans", han:"約會", cards:[
+    ["不如…","bat1 jyu4","how about / why don't we…",""],
+    ["你得唔得閒?","nei5 dak1 m4 dak1 haan4","Are you free?",""],
+    ["一齊去啦","jat1 cai4 heoi3 laa1","Let's go together",""],
+    ["幾時好?","gei2 si4 hou2","When works?",""],
+    ["喺邊度等?","hai2 bin1 dou6 dang2","Where should we meet?",""],
+    ["我約咗人","ngo5 joek3 zo2 jan4","I've got plans / meeting someone",""],
+    ["我遲少少","ngo5 ci4 siu2 siu2","I'll be a little late",""],
+    ["下次啦","haa6 ci3 laa1","next time","A gentle way to decline."],
+  ]},
+  { id:"feel", name:"Feelings", han:"心情", cards:[
+    ["我好攰","ngo5 hou2 gui6","I'm exhausted",""],
+    ["我好開心","ngo5 hou2 hoi1 sam1","I'm so happy",""],
+    ["我好嬲","ngo5 hou2 nau1","I'm angry / upset",""],
+    ["我好驚","ngo5 hou2 geng1","I'm scared",""],
+    ["好悶","hou2 mun6","so boring / I'm bored",""],
+    ["好緊張","hou2 gan2 zoeng1","very nervous / tense",""],
+    ["我餓喇","ngo5 ngo6 laa3","I'm hungry now","喇 = the state just changed: 'now I'm hungry'."],
+    ["冇心情","mou5 sam1 cing4","not in the mood",""],
+  ]},
+];
+
+const PARTICLES = [
+  { ch:"呀", jp:"aa3", gl:"softens / just informing you", ex:["好呀","hou2 aa3","Okay!"] },
+  { ch:"啦", jp:"laa1", gl:"urging — 'come on, let's'", ex:["走啦","zau2 laa1","Let's go!"] },
+  { ch:"喇", jp:"laa3", gl:"change of state — 'already / now'", ex:["我知喇","ngo5 zi1 laa3","I get it now."] },
+  { ch:"㗎", jp:"gaa3", gl:"assertion — 'it is so' (㗎? = right?)", ex:["係㗎","hai6 gaa3","Yes, it is."] },
+  { ch:"嘅", jp:"ge3", gl:"possessive / 'that's the case'", ex:["我嘅","ngo5 ge3","mine"] },
+  { ch:"咩", jp:"me1", gl:"surprised question — 'really?!'", ex:["你唔去咩?","nei5 m4 heoi3 me1","You're not going?!"] },
+  { ch:"囉", jp:"lo1", gl:"obviousness / resignation", ex:["係咁囉","hai6 gam2 lo1","That's just how it is."] },
+  { ch:"喎", jp:"wo3", gl:"noting new info — 'oh, hey / though'", ex:["落雨喎","lok6 jyu5 wo3","Hey, it's raining."] },
+  { ch:"啩", jp:"gwaa3", gl:"uncertainty — 'I guess / probably'", ex:["得啩","dak1 gwaa3","Should be fine, I guess."] },
+  { ch:"添", jp:"tim1", gl:"'and what's more / also'", ex:["仲衰添","zung6 seoi1 tim1","And it's even worse."] },
+  { ch:"啫", jp:"ze1", gl:"downplaying — 'just / only'", ex:["玩吓啫","waan2 haa5 ze1","Just messing around."] },
+  { ch:"吓", jp:"haa5", gl:"checking — 'huh? / right?'", ex:["係吓","hai6 haa5","Right?"] },
+];
+
+const BUILDER = [
+  { id:"left", baseEn:"He left.", variants:[
+    {p:"—",  han:"佢走咗",   pp:"",  jp:"keoi5 zau2 zo2",       en:"He left. — flat, neutral statement."},
+    {p:"喇", han:"佢走咗喇", pp:"喇", jp:"keoi5 zau2 zo2 laa3",  en:"He's already left. — telling you; it changed."},
+    {p:"喎", han:"佢走咗喎", pp:"喎", jp:"keoi5 zau2 zo2 wo3",   en:"Oh, he's left though. — noticing / flagging news."},
+    {p:"啩", han:"佢走咗啩", pp:"啩", jp:"keoi5 zau2 zo2 gwaa3", en:"He's left, I guess. — not certain."},
+    {p:"咩", han:"佢走咗咩?", pp:"咩", jp:"keoi5 zau2 zo2 me1",  en:"Wait, he left?! — surprised question."},
+    {p:"囉", han:"佢走咗囉", pp:"囉", jp:"keoi5 zau2 zo2 lo1",   en:"He's left, that's that. — resigned / obvious."},
+  ]},
+  { id:"eat", baseEn:"Eat.", variants:[
+    {p:"—",  han:"食飯",   pp:"",  jp:"sik6 faan6",        en:"Eat. — bare; can sound blunt."},
+    {p:"啦", han:"食飯啦", pp:"啦", jp:"sik6 faan6 laa1",   en:"Come on, let's eat! — friendly urging."},
+    {p:"喇", han:"食飯喇", pp:"喇", jp:"sik6 faan6 laa3",   en:"Time to eat now. — it's happening."},
+    {p:"呀", han:"食飯呀", pp:"呀", jp:"sik6 faan6 aa3",    en:"We're eating. — soft, just informing."},
+    {p:"咩", han:"食飯咩?", pp:"咩", jp:"sik6 faan6 me1",   en:"Eating, are we?! — surprised question."},
+    {p:"啩", han:"食飯啩", pp:"啩", jp:"sik6 faan6 gwaa3",  en:"Eating, I suppose? — uncertain."},
+  ]},
+];
+
+const PATTERNS = [
+  { f:["我想 ","___"],            jp:"ngo5 soeng2 ___",          m:"I want to <b>___</b>",            eg:["我想去","ngo5 soeng2 heoi3","I want to go"] },
+  { f:["你可唔可以 ","___"," 呀?"], jp:"nei5 ho2 m4 ho2 ji5 ___ aa3", m:"Can you <b>___</b>?",          eg:["你可唔可以幫我呀?","nei5 ho2 m4 ho2 ji5 bong1 ngo5 aa3","Can you help me?"] },
+  { f:["如果 ","___"," 就…"],      jp:"jyu4 gwo2 ___ zau6 …",     m:"If <b>___</b>, then…",            eg:["如果落雨就唔去","jyu4 gwo2 lok6 jyu5 zau6 m4 heoi3","If it rains, we won't go"] },
+  { f:["一 ","___"," 就…"],        jp:"jat1 ___ zau6 …",          m:"As soon as <b>___</b>, …",        eg:["一返到就食","jat1 faan1 dou3 zau6 sik6","The moment (I) get back, (I) eat"] },
+  { f:["越嚟越 ","___"],          jp:"jyut6 lai4 jyut6 ___",     m:"more and more <b>___</b>",        eg:["越嚟越凍","jyut6 lai4 jyut6 dung3","colder and colder"] },
+  { f:["係咪 ","___"," 呀?"],      jp:"hai6 mai6 ___ aa3",        m:"Is it that <b>___</b>? (yes/no)", eg:["係咪你呀?","hai6 mai6 nei5 aa3","Is it you?"] },
+  { f:["點解 ","___"," 呀?"],      jp:"dim2 gaai2 ___ aa3",       m:"Why <b>___</b>?",                 eg:["點解咁遲呀?","dim2 gaai2 gam3 ci4 aa3","Why so late?"] },
+  { f:["不如 ","___"," 啦"],       jp:"bat1 jyu4 ___ laa1",       m:"How about we <b>___</b>",         eg:["不如食麵啦","bat1 jyu4 sik6 min6 laa1","How about we eat noodles"] },
+  { f:["唔好 ","___"],            jp:"m4 hou2 ___",              m:"Don't <b>___</b>",                eg:["唔好嬲啦","m4 hou2 nau1 laa1","Don't be angry"] },
+  { f:["___"," 得好 ","___"],      jp:"___ dak1 hou2 ___",        m:"<b>___</b> very <b>___</b> (-ly)", eg:["講得好快","gong2 dak1 hou2 faai3","speaks very fast"] },
+];
+
+/* ============================================================
+   STATE + PERSISTENCE
+============================================================ */
+/* --- storage fallback for static hosting (Firebase/Netlify/etc.) ---
+   Uses Claude's window.storage when present; otherwise persists to this
+   device's localStorage so progress survives refreshes. */
+if (typeof window !== "undefined" && !window.storage) {
+  window.storage = {
+    get:    async (k)      => { const v = localStorage.getItem(k); return v == null ? null : {key:k, value:v, shared:false}; },
+    set:    async (k, v)   => { localStorage.setItem(k, String(v)); return {key:k, value:v, shared:false}; },
+    delete: async (k)      => { localStorage.removeItem(k); return {key:k, deleted:true, shared:false}; },
+    list:   async (p="")   => { const keys=[]; for(let i=0;i<localStorage.length;i++){const kk=localStorage.key(i); if(kk&&kk.startsWith(p))keys.push(kk);} return {keys, prefix:p, shared:false}; }
+  };
+}
+const STORE_KEY = "canto:conv:v1";
+let state = { known:{}, bestQuiz:0, lastLearn:"opinion", lastCard:"opinion", lastQuiz:"opinion", lastBase:"left" };
+let memFallback = false;
+async function loadState(){ try{ const r=await window.storage.get(STORE_KEY); if(r&&r.value) state=Object.assign(state,JSON.parse(r.value)); }catch(e){} }
+let saveTimer=null;
+async function saveState(){ clearTimeout(saveTimer); saveTimer=setTimeout(async()=>{ try{ await window.storage.set(STORE_KEY,JSON.stringify(state)); }catch(e){ memFallback=true; } },120); }
+const cardId=(d,i)=>d+":"+i;
+const isKnown=(d,i)=>!!state.known[cardId(d,i)];
+function setKnown(d,i,v){ const k=cardId(d,i); if(v)state.known[k]=1; else delete state.known[k]; saveState(); }
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $=s=>document.querySelector(s);
+const deckById=id=>DECKS.find(d=>d.id===id);
+const allCards=()=>DECKS.flatMap(d=>d.cards.map((c,i)=>({d:d.id,i,c})));
+const totalCards=()=>DECKS.reduce((n,d)=>n+d.cards.length,0);
+const knownInDeck=id=>deckById(id).cards.reduce((n,_,i)=>n+(isKnown(id,i)?1:0),0);
+const knownTotal=()=>Object.keys(state.known).length;
+function romanHTML(jp){ return jp.split(" ").map(syl=>{ const m=syl.match(/^(.*?)([1-6])$/); return m?m[1]+'<span class="tn t'+m[2]+'">'+m[2]+'</span>':syl; }).join(" "); }
+
+let cantoVoice=null;
+function pickVoice(){ if(!('speechSynthesis'in window))return; const vs=speechSynthesis.getVoices();
+  cantoVoice=vs.find(v=>/zh-HK|yue|cantonese|粵|廣/i.test(v.lang+" "+v.name))||vs.find(v=>/zh-Hant|zh-TW/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang))||null; }
+if('speechSynthesis'in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function speak(han){ if(!('speechSynthesis'in window))return; speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(han.replace(/[?？…_]/g,"")); u.lang="zh-HK"; if(cantoVoice)u.voice=cantoVoice; u.rate=.85; speechSynthesis.speak(u); }
+const ICON={ spk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' };
+
+/* ============================================================
+   HEADER
+============================================================ */
+function updateHeader(){
+  const total=totalCards()+0, known=knownTotal();
+  $("#knownCount").textContent=known; $("#totalCount").textContent=total;
+  const pct=total?known/total:0, C=2*Math.PI*19;
+  $("#ringFg").style.strokeDasharray=C.toFixed(1);
+  $("#ringFg").style.strokeDashoffset=(C*(1-pct)).toFixed(1);
+  $("#lvlPct").textContent=Math.round(pct*100)+"%";
+  if(known===total&&total>0) $("#progNote").innerHTML="Everything owned — 勁! Now drill the quiz to lock it in.";
+  else if(memFallback) $("#progNote").textContent="Progress is saved for this session.";
+}
+
+/* ============================================================
+   PARTICLE BUILDER (signature) + reference
+============================================================ */
+let bSel=0;
+function renderBuilder(){
+  const seg=$("#builderSeg"); seg.innerHTML="";
+  BUILDER.forEach(b=>{
+    const btn=document.createElement("button");
+    btn.textContent='"'+b.baseEn+'"'; btn.setAttribute("aria-pressed", state.lastBase===b.id);
+    btn.addEventListener("click",()=>{ state.lastBase=b.id; bSel=0; saveState(); renderBuilder(); });
+    seg.appendChild(btn);
+  });
+  const base=BUILDER.find(b=>b.id===state.lastBase)||BUILDER[0];
+  const grid=$("#builderParts"); grid.innerHTML="";
+  base.variants.forEach((v,idx)=>{
+    const btn=document.createElement("button"); btn.className="pbtn"; btn.setAttribute("aria-pressed", idx===bSel);
+    btn.innerHTML = v.p==="—" ? '<span style="font-size:15px;color:var(--faint)">none</span>' : v.p;
+    btn.addEventListener("click",()=>{ bSel=idx; paintBuilder(); });
+    grid.appendChild(btn);
+  });
+  paintBuilder();
+}
+function paintBuilder(){
+  const base=BUILDER.find(b=>b.id===state.lastBase)||BUILDER[0];
+  const v=base.variants[bSel];
+  const stem = v.pp ? v.han.slice(0, v.han.indexOf(v.pp)) : v.han.replace(/[?？]/,"");
+  const tail = v.pp ? '<span class="pp">'+v.pp+'</span>'+(v.han.endsWith("?")||v.han.endsWith("？")?"?":"") : (v.han.match(/[?？]$/)?"?":"");
+  $("#bHan").innerHTML = v.pp ? stem+tail : v.han;
+  $("#bRoman").innerHTML = romanHTML(v.jp);
+  $("#bVibe").textContent = v.en;
+  document.querySelectorAll("#builderParts .pbtn").forEach((b,i)=>b.setAttribute("aria-pressed", i===bSel));
+}
+$("#bSpeak").addEventListener("click",()=>{ const base=BUILDER.find(b=>b.id===state.lastBase)||BUILDER[0]; speak(base.variants[bSel].han); });
+
+function renderPref(){
+  const g=$("#prefGrid"); g.innerHTML="";
+  PARTICLES.forEach(p=>{
+    const el=document.createElement("div"); el.className="pcard";
+    el.innerHTML=`
+      <div class="top"><span class="ch">${p.ch}</span><span class="jpn">${p.jp}</span></div>
+      <div class="gl">${p.gl}</div>
+      <div class="ex">
+        <div class="exi"><div class="exh">${p.ex[0]}</div><div class="exr">${romanHTML(p.ex[1])}</div><div class="exe">${p.ex[2]}</div></div>
+        <button aria-label="Hear example">${ICON.spk}</button>
+      </div>`;
+    el.querySelector("button").addEventListener("click",()=>speak(p.ex[0]));
+    g.appendChild(el);
+  });
+}
+
+/* ============================================================
+   CHIPS (shared)
+============================================================ */
+function buildChips(container,current,onPick,withAll){
+  container.innerHTML="";
+  const make=(id,label,cur)=>{
+    const total=id==="__all"?totalCards():deckById(id).cards.length;
+    const done=id==="__all"?knownTotal():knownInDeck(id);
+    const b=document.createElement("button"); b.className="chip"; b.setAttribute("aria-pressed",cur===id);
+    b.innerHTML=`${label}<span class="cnt">${done}/${total}</span>`;
+    b.addEventListener("click",()=>onPick(id)); container.appendChild(b);
+  };
+  if(withAll) make("__all","All",current);
+  DECKS.forEach(d=>make(d.id,d.name,current));
+}
+
+/* ============================================================
+   PHRASES (learn)
+============================================================ */
+function renderLearn(){
+  const id=state.lastLearn;
+  buildChips($("#learnChips"),id,p=>{ state.lastLearn=p; saveState(); renderLearn(); },false);
+  const deck=deckById(id), list=$("#learnList"); list.innerHTML="";
+  deck.cards.forEach((c,i)=>{
+    const [han,jp,en,note]=c, known=isKnown(id,i);
+    const row=document.createElement("div"); row.className="row"+(known?" known":"");
+    row.innerHTML=`
+      <div class="han">${han}</div>
+      <div class="txt">
+        <div class="roman jp">${romanHTML(jp)}</div>
+        <div class="en">${en}</div>
+        ${note?`<div class="note">${note}</div>`:""}
+      </div>
+      <div class="acts">
+        <button class="icirc play" aria-label="Hear it">${ICON.spk}</button>
+        <button class="icirc mark ${known?'on':''}" aria-label="Mark learned">${ICON.check}</button>
+      </div>`;
+    row.querySelector(".play").addEventListener("click",()=>speak(han));
+    row.querySelector(".mark").addEventListener("click",()=>{ setKnown(id,i,!isKnown(id,i)); renderLearn(); updateHeader(); });
+    list.appendChild(row);
+  });
+  const total=deck.cards.length, done=knownInDeck(id);
+  $("#learnBar").style.width=(total?done/total*100:0)+"%";
+  $("#learnBarLbl").textContent=`${done}/${total} owned`;
+}
+
+/* ============================================================
+   PATTERNS
+============================================================ */
+function renderPatterns(){
+  const wrap=$("#patternList"); wrap.innerHTML="";
+  PATTERNS.forEach(p=>{
+    const frameHTML = p.f.map(seg=> seg==="___" ? '<span class="slot">___</span>' : seg).join("");
+    const el=document.createElement("div"); el.className="pat";
+    el.innerHTML=`
+      <div class="frame">${frameHTML}</div>
+      <div class="pj">${romanHTML(p.jp)}</div>
+      <div class="pm">${p.m}</div>
+      <div class="eg">
+        <div class="egt"><div class="egh">${p.eg[0]}</div><div class="egr">${romanHTML(p.eg[1])}</div><div class="ege">${p.eg[2]}</div></div>
+        <button aria-label="Hear example">${ICON.spk}</button>
+      </div>`;
+    el.querySelector("button").addEventListener("click",()=>speak(p.eg[0]));
+    wrap.appendChild(el);
+  });
+}
+
+/* ============================================================
+   FLASHCARDS
+============================================================ */
+let fcQueue=[],fcPos=0,fcFlipped=false;
+function buildFcQueue(){ fcQueue=deckById(state.lastCard).cards.map((c,i)=>({c,i})).sort(()=>Math.random()-.5); fcPos=0; fcFlipped=false; }
+function renderCardChips(){ buildChips($("#cardChips"),state.lastCard,id=>{ state.lastCard=id; saveState(); buildFcQueue(); showCard(); },false); }
+function showCard(){
+  const fc=$("#flashcard"); fc.classList.remove("flipped"); fcFlipped=false;
+  if(!fcQueue.length){ $("#fcMeta").textContent=""; return; }
+  if(fcPos>=fcQueue.length){
+    $("#fcHan").textContent="✓ 完成"; $("#fcCorner").textContent="deck complete";
+    $("#fcMeta").innerHTML="Whole deck done — <b>"+deckById(state.lastCard).name+"</b>. Pick a deck above to go again.";
+    $("#fcRoman").textContent=""; $("#fcEn").textContent=""; $("#fcNote").textContent=""; return;
+  }
+  const {c,i}=fcQueue[fcPos];
+  $("#fcHan").textContent=c[0]; $("#fcRoman").innerHTML=romanHTML(c[1]); $("#fcEn").textContent=c[2];
+  $("#fcNote").textContent=c[3]||""; $("#fcCorner").textContent=`${fcPos+1} / ${fcQueue.length}`;
+  $("#fcMeta").innerHTML=isKnown(state.lastCard,i)?"Already owned — good to reinforce.":"&nbsp;";
+}
+function flipCard(){ fcFlipped=!fcFlipped; $("#flashcard").classList.toggle("flipped",fcFlipped); }
+function advance(mk){ if(fcPos>=fcQueue.length)return; const {i}=fcQueue[fcPos]; if(mk){ setKnown(state.lastCard,i,true); updateHeader(); } fcPos++; showCard(); }
+
+/* ============================================================
+   QUIZ
+============================================================ */
+let quiz={pool:[],idx:0,score:0,answered:false};
+function renderQuizChips(){ buildChips($("#quizChips"),state.lastQuiz,id=>{ state.lastQuiz=id; saveState(); startQuiz(); },true); }
+function quizPool(){ return state.lastQuiz==="__all"?allCards():deckById(state.lastQuiz).cards.map((c,i)=>({d:state.lastQuiz,i,c})); }
+function startQuiz(){ const p=quizPool().slice().sort(()=>Math.random()-.5).slice(0,Math.min(10,quizPool().length)); quiz={pool:p,idx:0,score:0,answered:false}; renderQuestion(); }
+function renderQuestion(){
+  const area=$("#quizArea");
+  if(quiz.idx>=quiz.pool.length){ renderQuizDone(); return; }
+  const q=quiz.pool[quiz.idx];
+  const others=allCards().filter(x=>x.c[2]!==q.c[2]).sort(()=>Math.random()-.5).slice(0,3).map(x=>x.c[2]);
+  const opts=[q.c[2],...others].sort(()=>Math.random()-.5);
+  area.innerHTML=`
+    <div class="quiz-head"><div class="score">Q ${quiz.idx+1}<span>/${quiz.pool.length}</span></div><div class="score">Score <span>${quiz.score}</span></div></div>
+    <div class="qprompt"><div class="qlabel">What does this mean?</div><div class="han">${q.c[0]}</div><div class="roman jp">${romanHTML(q.c[1])}</div></div>
+    <div class="opts">${opts.map(o=>`<button class="opt">${o}</button>`).join("")}</div>
+    <button class="qnext" id="qNext" disabled>Next →</button>`;
+  quiz.answered=false;
+  area.querySelectorAll(".opt").forEach(btn=>btn.addEventListener("click",()=>{
+    if(quiz.answered)return; quiz.answered=true;
+    const correct=btn.textContent===q.c[2];
+    area.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; if(b.textContent===q.c[2])b.classList.add("correct"); });
+    if(!correct)btn.classList.add("wrong");
+    if(correct){ quiz.score++; setKnown(q.d,q.i,true); updateHeader(); }
+    speak(q.c[0]); $("#qNext").disabled=false; area.querySelector(".score span").textContent=quiz.score;
+  }));
+  area.querySelector("#qNext").addEventListener("click",()=>{ quiz.idx++; renderQuestion(); });
+}
+function renderQuizDone(){
+  if(quiz.score>state.bestQuiz){ state.bestQuiz=quiz.score; saveState(); }
+  const n=quiz.pool.length, r=quiz.score/n;
+  let han="加油",msg="Keep going — run it again and watch it climb.";
+  if(r===1){han="滿分";msg="Perfect. You own this deck.";}
+  else if(r>=.8){han="勁";msg="Strong. A couple more passes and it's automatic.";}
+  else if(r>=.5){han="唔錯";msg="Solid base — review the misses and go again.";}
+  $("#quizArea").innerHTML=`<div class="quiz-done"><div class="big">${quiz.score}/${n}</div><div class="han">${han}</div>
+    <p>${msg}<br><small>Best so far: ${state.bestQuiz}</small></p><button id="qRetry">Try again</button></div>`;
+  $("#qRetry").addEventListener("click",startQuiz);
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===name));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+name));
+  if('speechSynthesis'in window) speechSynthesis.cancel();
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  const name=t.dataset.tab; switchTab(name);
+  if(name==="phrases") renderLearn();
+  if(name==="patterns") renderPatterns();
+  if(name==="particles"){ renderBuilder(); renderPref(); }
+  if(name==="cards"){ renderCardChips(); if(!fcQueue.length)buildFcQueue(); showCard(); }
+  if(name==="quiz"){ renderQuizChips(); if(!quiz.pool.length)startQuiz(); }
+}));
+
+$("#flashcard").addEventListener("click",flipCard);
+$("#flashcard").addEventListener("keydown",e=>{ if(e.code==="Space"||e.code==="Enter"){e.preventDefault();flipCard();} if(e.key.toLowerCase()==="p"&&fcQueue[fcPos])speak(fcQueue[fcPos].c[0]); });
+$("#fcGot").addEventListener("click",()=>advance(true));
+$("#fcAgain").addEventListener("click",()=>advance(false));
+
+$("#resetBtn").addEventListener("click",async()=>{
+  if(!confirm("Reset all progress? This clears every owned mark and your best quiz score."))return;
+  state={ known:{}, bestQuiz:0, lastLearn:"opinion", lastCard:"opinion", lastQuiz:"opinion", lastBase:"left" };
+  try{ await window.storage.delete(STORE_KEY); }catch(e){}
+  buildFcQueue(); quiz.pool=[]; bSel=0; updateHeader(); renderBuilder(); renderLearn();
+});
+
+/* INIT */
+(async function init(){
+  await loadState();
+  updateHeader();
+  renderBuilder();
+  renderPref();
+})();
+</script>
+<script src="voice.js"></script>
+</body>
+</html>

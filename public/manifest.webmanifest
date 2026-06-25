@@ -1,0 +1,55 @@
+{
+  "name": "Learn Cantonese 學廣東話",
+  "short_name": "Cantonese",
+  "description": "A step-by-step Cantonese course: foundations, basics, family, conversation, and listening practice.",
+  "lang": "en",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1ede4",
+  "theme_color": "#2c6657",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Listening Dojo",
+      "short_name": "Listen",
+      "url": "/cantonese-listening-dojo.html"
+    },
+    {
+      "name": "The July 30 Plan",
+      "short_name": "Basics",
+      "url": "/cantonese-basics.html"
+    },
+    {
+      "name": "Meeting the Family",
+      "short_name": "Family",
+      "url": "/cantonese-meeting-the-family.html"
+    }
+  ]
+}

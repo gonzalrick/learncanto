@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>學廣東話 — Learn Cantonese</title>
+    <meta
+      name="description"
+      content="A step-by-step Cantonese course: foundations, basics, family, conversation, and listening practice."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@700&family=Noto+Serif+HK:wght@700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f1ede4;
+        --card: #fbf9f3;
+        --ink: #221f26;
+        --ink-soft: #564d57;
+        --muted: #867c80;
+        --line: #ddd5c8;
+        --shadow:
+          0 1px 0 rgba(34, 31, 38, 0.03),
+          0 16px 36px -24px rgba(34, 31, 38, 0.55);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        color: var(--ink);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        background:
+          radial-gradient(
+            100% 60% at 100% -5%,
+            rgba(138, 63, 115, 0.07),
+            transparent 55%
+          ),
+          radial-gradient(
+            100% 60% at -5% 105%,
+            rgba(43, 124, 145, 0.08),
+            transparent 55%
+          ),
+          var(--paper);
+        min-height: 100vh;
+      }
+      .hz {
+        font-family: "Noto Serif HK", serif;
+      }
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 0 18px 80px;
+      }
+      header {
+        padding: 40px 0 10px;
+        text-align: center;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      h1 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: clamp(34px, 9vw, 54px);
+        letter-spacing: -0.025em;
+        margin-top: 8px;
+        line-height: 1.02;
+      }
+      h1 .hz {
+        display: block;
+        font-weight: 900;
+        font-size: 0.55em;
+        margin-top: 6px;
+        background: linear-gradient(90deg, #2b7c91, #c0505a, #8a3f73);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .tagline {
+        color: var(--ink-soft);
+        font-size: 15px;
+        margin: 14px auto 0;
+        max-width: 44ch;
+      }
+
+      .section-label {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+        margin: 34px 4px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+
+      .path {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+      }
+      .card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px 18px 16px 16px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: var(--shadow);
+        transition:
+          transform 0.14s ease,
+          border-color 0.14s ease;
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: var(--ac);
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: var(--ac);
+      }
+      .badge {
+        flex: 0 0 auto;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: var(--ac);
+        color: #fff;
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 14px;
+        line-height: 1;
+        text-align: center;
+      }
+      .badge small {
+        display: block;
+        font-size: 8.5px;
+        letter-spacing: 0.1em;
+        opacity: 0.85;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .info {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .info h2 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 18px;
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+      .info h2 .zh {
+        font-family: "Noto Serif HK", serif;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--ac);
+      }
+      .info p {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-top: 3px;
+      }
+      .go {
+        flex: 0 0 auto;
+        color: var(--muted);
+        transition:
+          transform 0.14s,
+          color 0.14s;
+      }
+      .card:hover .go {
+        transform: translateX(3px);
+        color: var(--ac);
+      }
+      .go svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .note {
+        margin-top: 30px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 15px 17px;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      .note b {
+        color: var(--ink);
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 26px;
+        line-height: 1.7;
+      }
+      footer .hz {
+        color: #8a3f73;
+      }
+    </style>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#2c6657" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Cantonese" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").catch(function () {});
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="eyebrow">A step-by-step course</div>
+        <h1>Learn Cantonese<span class="hz">學廣東話</span></h1>
+        <p class="tagline">
+          Six small apps that take you from your very first sound to holding a
+          conversation. Work top to bottom — or jump to whatever you need today.
+        </p>
+      </header>
+
+      <div class="section-label">The path</div>
+      <div class="path">
+        <a class="card" href="cantonese-foundations.html" style="--ac: #2b7c91">
+          <div class="badge">L0<small>START</small></div>
+          <div class="info">
+            <h2>Foundations <span class="zh hz">入門</span></h2>
+            <p>
+              The six tones, the sounds, jyutping, and your first building-block
+              words. Begin here.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+
+        <a class="card" href="cantonese-basics.html" style="--ac: #2c6657">
+          <div class="badge">L1<small>BASICS</small></div>
+          <div class="info">
+            <h2>Basics <span class="zh hz">基礎</span></h2>
+            <p>
+              300+ survival words — greetings, numbers, food, directions,
+              emergencies.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+
+        <a
+          class="card"
+          href="cantonese-meeting-the-family.html"
+          style="--ac: #c0505a"
+        >
+          <div class="badge">L1<small>FAMILY</small></div>
+          <div class="info">
+            <h2>Meeting the Family <span class="zh hz">見家長</span></h2>
+            <p>
+              Warm, light phrases for meeting your partner's relatives — and
+              exactly what to call everyone.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+
+        <a
+          class="card"
+          href="cantonese-beyond-basics.html"
+          style="--ac: #8a3f73"
+        >
+          <div class="badge">L1.5<small>BUILD</small></div>
+          <div class="info">
+            <h2>Beyond the Basics <span class="zh hz">進階</span></h2>
+            <p>
+              Real-situation dialogues, 300 more words, and the grammar that
+              links them into sentences.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+
+        <a
+          class="card"
+          href="cantonese-conversational.html"
+          style="--ac: #d8543c"
+        >
+          <div class="badge">L2<small>SPEAK</small></div>
+          <div class="info">
+            <h2>Conversational <span class="zh hz">講廣東話</span></h2>
+            <p>
+              Sentence-final particles, connectors, and patterns that make you
+              actually sound local.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+      </div>
+
+      <div class="section-label">Daily practice</div>
+      <div class="path">
+        <a
+          class="card"
+          href="cantonese-listening-dojo.html"
+          style="--ac: #4a64c0"
+        >
+          <div class="badge">EAR<small>DRILL</small></div>
+          <div class="info">
+            <h2>Listening Dojo <span class="zh hz">聽力訓練</span></h2>
+            <p>
+              Train your ear at adjustable speed: listen &amp; reveal, "what did
+              you hear?", and number drills.
+            </p>
+          </div>
+          <span class="go" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" /></svg
+          ></span>
+        </a>
+      </div>
+
+      <div class="note">
+        <b>How to use it:</b> tap ▶ anywhere to hear a word, mark things ✓ as
+        they stick, and let your progress save as you go. Audio uses your
+        device's built-in Cantonese voice — phones and Macs tend to do best.
+        <b>New here?</b> Start with Foundations and don't rush the tones.
+      </div>
+
+      <footer>
+        Built one step at a time · <span class="hz">加油!</span
+        ><br />Foundations → Basics → Family → Beyond → Conversational, with the
+        Dojo every day.
+      </footer>
+    </div>
+    <script src="voice.js"></script>
+  </body>
+</html>

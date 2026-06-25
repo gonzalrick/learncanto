@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "learncanto-500508"
+  },
+  "targets": {
+    "learncanto-500508": {
+      "hosting": {
+        "live": [
+          "learncanto"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

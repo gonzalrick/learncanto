@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>入門廣東話 — Cantonese Foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&family=Noto+Serif+HK:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eef2ee;
+    --card:#ffffff;
+    --card-2:#f3f6f3;
+    --ink:#1d2630;
+    --ink-soft:#46525e;
+    --sky:#2b7c91;
+    --sky-deep:#1b5c6c;
+    --dawn:#e87f4d;
+    --dawn-deep:#c45f30;
+    --gold:#dca33e;
+    --line:#d6ded9;
+    --line-2:#e6ece7;
+    --brush:#79857f;
+    --t1:#cf5a45; --t2:#c08620; --t3:#7d8a82; --t4:#2b7c91; --t5:#3f74c4; --t6:#7c5fae;
+    --shadow:0 1px 0 rgba(29,38,48,.03), 0 12px 30px -20px rgba(29,38,48,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"Inter",system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(110% 70% at 100% -8%, rgba(232,127,77,.10), transparent 55%),
+      radial-gradient(110% 70% at -8% 108%, rgba(43,124,145,.10), transparent 55%),
+      var(--paper);
+    min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .hz{font-family:"Noto Serif HK","Noto Sans HK",serif}
+  .jp{font-family:"Space Mono",ui-monospace,monospace}
+  .display{font-family:"Bricolage Grotesque","Inter",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.03}
+  .wrap{max-width:740px;margin:0 auto;padding:0 18px 120px}
+
+  /* header */
+  header{padding:28px 0 10px}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dawn-deep);font-weight:600}
+  .title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:7px}
+  h1.display{font-size:clamp(29px,7vw,46px)}
+  h1 .sub{display:block;font-family:"Noto Serif HK",serif;font-weight:900;font-size:.6em;letter-spacing:0;margin-top:3px;color:var(--sky-deep)}
+  .prog{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:10px 15px;box-shadow:var(--shadow)}
+  .prog .t{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:15px;line-height:1.15}
+  .prog .t small{display:block;font-family:"Inter",sans-serif;font-weight:500;font-size:11px;color:var(--brush);letter-spacing:.03em}
+
+  .intro-card{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 17px;box-shadow:var(--shadow);font-size:14.5px;color:var(--ink-soft)}
+  .intro-card b{color:var(--dawn-deep);font-weight:600}
+
+  /* ---- lesson path (signature) ---- */
+  .path{position:relative;margin-top:22px;padding-left:8px}
+  .path::before{content:"";position:absolute;left:34px;top:24px;bottom:24px;width:3px;
+    background:linear-gradient(var(--sky),var(--dawn));opacity:.35;border-radius:3px}
+  .stone{position:relative;display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 14px 14px;margin-bottom:12px;
+    cursor:pointer;box-shadow:var(--shadow);font-family:inherit;transition:.15s}
+  .stone:hover{transform:translateX(2px);border-color:var(--sky)}
+  .stone:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .stone .node{flex:0 0 auto;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;
+    background:var(--card-2);border:2px solid var(--line);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px;color:var(--sky-deep)}
+  .stone.done .node{background:var(--sky);border-color:var(--sky);color:#fff}
+  .stone .node .pct{position:absolute;inset:-2px;border-radius:50%}
+  .stone .info{flex:1 1 auto;min-width:0}
+  .stone .info h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px}
+  .stone .info .sub{font-size:12.5px;color:var(--brush)}
+  .stone .info .mini{font-size:11.5px;color:var(--sky-deep);font-weight:600;margin-top:3px}
+  .stone .info .mini.done{color:var(--sky)}
+  .stone .go{flex:0 0 auto;color:var(--brush)}
+  .stone .go svg{width:20px;height:20px}
+
+  .finale{margin-top:6px;background:linear-gradient(135deg,rgba(43,124,145,.10),rgba(232,127,77,.12));
+    border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center}
+  .finale .hz{font-family:"Noto Serif HK",serif;font-size:24px;color:var(--dawn-deep);font-weight:700}
+  .finale p{font-size:14px;color:var(--ink-soft);margin-top:6px}
+
+  /* ---- lesson view ---- */
+  #lesson{display:none}
+  .l-top{display:flex;align-items:center;gap:13px;padding:24px 0 6px}
+  .back{flex:0 0 auto;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+    display:grid;place-items:center;cursor:pointer;color:var(--ink-soft);box-shadow:var(--shadow)}
+  .back:hover{border-color:var(--sky);color:var(--sky)}
+  .back svg{width:20px;height:20px}
+  .l-top .lt h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:22px;line-height:1.05}
+  .l-top .lt .badge{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dawn-deep);font-weight:600}
+  .l-intro{font-size:15px;color:var(--ink-soft);margin:12px 0 20px;max-width:62ch}
+  .l-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .bar{flex:1 1 auto;height:8px;background:var(--card-2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--dawn));width:0;transition:width .4s}
+  .l-bar small{font-size:12px;color:var(--brush);white-space:nowrap;font-weight:500}
+
+  /* concept cards */
+  .concept{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin-bottom:10px;display:flex;gap:13px;box-shadow:var(--shadow)}
+  .concept.done{background:var(--card-2)}
+  .concept .ck{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);display:grid;place-items:center;cursor:pointer;color:var(--brush)}
+  .concept .ck.on{background:var(--sky);border-color:var(--sky);color:#fff}
+  .concept .ck svg{width:17px;height:17px}
+  .concept .cc h4{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:15px;margin-bottom:3px}
+  .concept .cc p{font-size:13.5px;color:var(--ink-soft)}
+
+  /* tone cards */
+  .tone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px}
+  .tone-card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadow)}
+  .tone-card.done{background:var(--card-2)}
+  .tone-card .th{display:flex;justify-content:space-between;align-items:flex-start}
+  .tone-card .tnum{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:14.5px}
+  .tone-card .name{font-size:12px;color:var(--brush)}
+  .tone-card .ck{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card-2);display:grid;place-items:center;cursor:pointer;color:var(--brush)}
+  .tone-card .ck.on{background:var(--sky);border-color:var(--sky);color:#fff}
+  .tone-card .ck svg{width:15px;height:15px}
+  .tone-card svg.curve{width:100%;height:48px;display:block;margin:8px 0}
+  .tone-card .ex{display:flex;align-items:center;justify-content:space-between}
+  .tone-card .ex .syl{font-family:"Space Mono",monospace;font-weight:700;font-size:14px}
+  .tone-card .ex .gloss{font-family:"Noto Serif HK",serif;font-size:14px;color:var(--ink-soft)}
+  .tone-card .ex button{border:1px solid var(--line);background:var(--card-2);border-radius:8px;width:30px;height:30px;display:grid;place-items:center;cursor:pointer;color:var(--ink-soft)}
+  .tone-card .ex button:hover{border-color:var(--dawn);color:var(--dawn-deep)}
+  .tone-card .ex button svg{width:14px;height:14px}
+
+  /* sound cards */
+  .sound{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .sound.done{background:var(--card-2)}
+  .sound .sh{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+  .sound .sj{font-family:"Space Mono",monospace;font-weight:700;font-size:20px;color:var(--sky-deep);flex:0 0 auto}
+  .sound .snote{flex:1 1 auto;font-size:13px;color:var(--ink-soft)}
+  .sound .ck{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card-2);display:grid;place-items:center;cursor:pointer;color:var(--brush)}
+  .sound .ck.on{background:var(--sky);border-color:var(--sky);color:#fff}
+  .sound .ck svg{width:16px;height:16px}
+  .sound .exs{display:flex;flex-wrap:wrap;gap:8px}
+  .sound .ex{display:flex;align-items:center;gap:9px;background:var(--card-2);border:1px solid var(--line-2);border-radius:11px;padding:8px 11px;cursor:pointer}
+  .sound .ex:hover{border-color:var(--dawn)}
+  .sound .ex .exh{font-family:"Noto Serif HK",serif;font-weight:700;font-size:21px}
+  .sound .ex .exi .exr{font-family:"Space Mono",monospace;font-size:12px;color:var(--sky-deep)}
+  .sound .ex .exi .exe{font-size:11.5px;color:var(--brush)}
+  .sound .ex .pi{color:var(--brush)}
+  .sound .ex .pi svg{width:14px;height:14px;display:block}
+
+  /* word cards */
+  .word{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow)}
+  .word.done{background:var(--card-2)}
+  .word .han{font-family:"Noto Serif HK",serif;font-weight:700;font-size:28px;line-height:1;color:var(--ink);flex:0 0 auto;min-width:1.6em}
+  .word .txt{flex:1 1 auto;min-width:0}
+  .word .roman{font-size:14.5px;color:var(--sky-deep)}
+  .word .en{font-size:13.5px;color:var(--ink-soft);margin-top:1px}
+  .word .note{font-size:12px;color:var(--brush);font-style:italic;margin-top:3px}
+  .word .acts{display:flex;gap:7px;flex:0 0 auto}
+  .icirc{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--card-2);display:grid;place-items:center;cursor:pointer;color:var(--ink-soft);transition:.15s}
+  .icirc.play:hover{border-color:var(--dawn);color:var(--dawn-deep)}
+  .icirc.mark.on{background:var(--sky);border-color:var(--sky);color:#fff}
+  .icirc:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .icirc svg{width:18px;height:18px}
+
+  .keynote{background:linear-gradient(135deg,rgba(43,124,145,.08),rgba(232,127,77,.08));border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin:4px 0 16px}
+  .keynote h4{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .keynote h4 .d{width:8px;height:8px;border-radius:2px;background:var(--dawn);transform:rotate(45deg)}
+  .keynote p{font-size:13.5px;color:var(--ink-soft)}
+  .keynote code{font-family:"Space Mono",monospace;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px;color:var(--sky-deep)}
+
+  .t1{color:var(--t1)} .t2{color:var(--t2)} .t3{color:var(--t3)}
+  .t4{color:var(--t4)} .t5{color:var(--t5)} .t6{color:var(--t6)}
+  .roman .tn,.exr .tn,.sj .tn{font-weight:700}
+
+  .l-foot{margin-top:22px;display:flex;gap:10px;align-items:center}
+  .l-foot button{font-family:inherit;font-weight:700;font-size:14.5px;border:none;border-radius:13px;padding:14px 20px;cursor:pointer}
+  .l-foot .done-all{background:var(--sky);color:#fff;flex:1}
+  .l-foot .next{background:var(--ink);color:#fff}
+  .l-foot .next:disabled{opacity:.35;cursor:default}
+
+  .reset-btn{background:none;border:1px solid var(--line);color:var(--brush);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:14px}
+  .reset-btn:hover{border-color:var(--dawn);color:var(--dawn-deep)}
+  footer{text-align:center;color:var(--brush);font-size:12px;margin-top:26px;line-height:1.7}
+  footer .hz{color:var(--sky)}
+
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;transition-duration:.001ms!important} }
+</style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#2b7c91">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cantonese">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
+</head>
+<body>
+<style>
+.cv-back{position:fixed;left:14px;bottom:14px;z-index:99998;width:44px;height:44px;border-radius:50%;
+display:grid;place-items:center;background:#1d1d2e;color:#eef0fb;text-decoration:none;
+box-shadow:0 8px 22px -10px rgba(0,0,0,.6);transition:background .14s}
+.cv-back:hover{background:#2a2a42}
+.cv-back:active{transform:scale(.94)}
+.cv-back svg{width:20px;height:20px}
+</style>
+<a class="cv-back" href="/index.html" aria-label="Back to home" title="Back to home">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+
+<div class="wrap">
+
+  <!-- ===== HOME (lesson path) ===== -->
+  <div id="home">
+    <header>
+      <div class="eyebrow">Level 0 · before the basics</div>
+      <div class="title-row">
+        <h1 class="display">Cantonese Foundations<span class="sub hz">入門廣東話</span></h1>
+        <div class="prog">
+          <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+            <circle cx="23" cy="23" r="19" fill="none" stroke="var(--line)" stroke-width="5"/>
+            <circle id="ringFg" cx="23" cy="23" r="19" fill="none" stroke="var(--dawn)" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 23 23)"/>
+          </svg>
+          <div class="t"><span id="progPct">0%</span><small>of the course</small></div>
+        </div>
+      </div>
+      <div class="intro-card">Six short lessons that take you from <b>zero</b> to ready for the Basics app. Start at the top — sounds and tones first, then your first real words. Tap any step to begin; tap ▶ anywhere to hear it.</div>
+    </header>
+
+    <div class="path" id="path"></div>
+
+    <div class="finale">
+      <div class="hz">準備好喇!</div>
+      <p>Finish all six and you'll have the ears, the sounds and the first words you need — then jump into the <strong>Basic Cantonese</strong> app for survival phrases.</p>
+    </div>
+    <div style="text-align:center"><button class="reset-btn" id="resetBtn">Reset progress</button></div>
+    <footer>Step one of three · <span class="hz">慢慢嚟</span> (maan6 maan2 lai4 — take it slow)<br>Audio uses your device's Cantonese voice if it has one; quality varies by device.</footer>
+  </div>
+
+  <!-- ===== LESSON VIEW ===== -->
+  <div id="lesson">
+    <div class="l-top">
+      <button class="back" id="backBtn" aria-label="Back to lessons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="lt"><div class="badge" id="lBadge"></div><h2 id="lTitle"></h2></div>
+    </div>
+    <p class="l-intro" id="lIntro"></p>
+    <div class="l-bar"><div class="bar"><i id="lBar"></i></div><small id="lBarLbl"></small></div>
+    <div id="lBody"></div>
+    <div class="l-foot">
+      <button class="done-all" id="doneAll">Mark all complete</button>
+      <button class="next" id="nextBtn">Next lesson →</button>
+    </div>
+    <footer><span id="lFootNote"></span></footer>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   LESSON DATA
+============================================================ */
+const LESSONS = [
+  {
+    id:"how", title:"How Cantonese works", badge:"Lesson 0 · orientation", type:"concept",
+    intro:"A two-minute orientation. No memorising yet — just get the lay of the land so the rest makes sense.",
+    items:[
+      ["Six tones carry meaning","The same syllable said at a different pitch is a different word — and there are six pitches. Training your ear to them is the single most useful thing you'll do. That's the very next lesson."],
+      ["Traditional characters","Hong Kong and Macau write in traditional characters (繁體字). Each character is exactly one syllable. You don't need to write them to speak — reading a few comes much later."],
+      ["Jyutping = training wheels","Jyutping spells the sounds with letters, then adds a number (1–6) for the tone. So nei5 hou2 is 'hello'. Lean on it until the characters start to stick."],
+      ["Spoken isn't written","What people actually say (口語, colloquial) isn't word-for-word the formal written language. This whole course teaches the spoken form — what you'll really hear and use."],
+      ["n and l blur together","Loads of speakers swap initial n- and l-, so 你 nei5 often comes out as lei5. Both are completely fine. Don't let it throw you when you hear it."],
+      ["Don't chase perfect","You'll get tones wrong at first — everyone does. Context carries most of the meaning, and any attempt at Cantonese earns real warmth. Speak early, speak often."],
+    ]
+  },
+  {
+    id:"tones", title:"The six tones", badge:"Lesson 1 · your ear", type:"tone",
+    intro:"Six everyday words, one sitting on each tone. Trace the pitch line, hit ▶, and say it back out loud. Level = how high it sits; the line shape = how it moves.",
+    items:[
+      {n:1,name:"high level",  pts:[[6,16],[94,16]], syl:"maa1",  han:"媽 (mum)"},
+      {n:2,name:"mid rising",  pts:[[6,38],[94,11]], syl:"hou2",  han:"好 (good)"},
+      {n:3,name:"mid level",   pts:[[6,27],[94,27]], syl:"heoi3", han:"去 (to go)"},
+      {n:4,name:"low falling", pts:[[6,36],[94,46]], syl:"caa4",  han:"茶 (tea)"},
+      {n:5,name:"low rising",  pts:[[6,44],[94,28]], syl:"ngo5",  han:"我 (I / me)"},
+      {n:6,name:"low level",   pts:[[6,41],[94,41]], syl:"faan6", han:"飯 (rice)"},
+    ]
+  },
+  {
+    id:"initials", title:"Initial sounds", badge:"Lesson 2 · consonants", type:"sound",
+    intro:"The consonant that starts a syllable. A few have no English match, and several come in soft/hard pairs — the hard one has a little puff of air. Tap an example to hear it.",
+    items:[
+      {jp:"b / p", note:"Soft vs puffy. p pushes air; b doesn't.", ex:[["爸","baa1","dad"],["怕","paa3","afraid"]]},
+      {jp:"d / t", note:"Same pairing — listen for the puff on t.", ex:[["大","daai6","big"],["太","taai3","too"]]},
+      {jp:"g / k", note:"Hard g vs puffy k.", ex:[["狗","gau2","dog"],["球","kau4","ball"]]},
+      {jp:"gw / kw", note:"g and k with rounded lips (a 'w' glide).", ex:[["國","gwok3","country"],["規","kwai1","rule"]]},
+      {jp:"z / c", note:"z is like 'ds'; c is 'ts' with a puff.", ex:[["知","zi1","to know"],["茶","caa4","tea"]]},
+      {jp:"s", note:"As in English 'see'.", ex:[["三","saam1","three"]]},
+      {jp:"j", note:"Like English 'y', not 'j'.", ex:[["一","jat1","one"],["有","jau5","to have"]]},
+      {jp:"ng", note:"A nasal start — the 'ng' in 'sing', moved to the front.", ex:[["五","ng5","five"],["我","ngo5","I / me"]]},
+      {jp:"h", note:"A light breathy h.", ex:[["好","hou2","good"]]},
+      {jp:"m / n / l", note:"n and l often merge — both are fine.", ex:[["媽","maa1","mum"],["你","nei5","you"],["嚟","lei4","to come"]]},
+      {jp:"f / w", note:"As in English.", ex:[["火","fo2","fire"],["話","waa6","to speak"]]},
+    ]
+  },
+  {
+    id:"finals", title:"Final sounds", badge:"Lesson 3 · vowels & endings", type:"sound",
+    intro:"Everything after the initial — the vowel plus any ending. Cantonese has long vs short vowels, rounded vowels English lacks, and clipped -p/-t/-k endings you barely release.",
+    items:[
+      {jp:"aa vs a", note:"aa is a long 'ah'; a is short (only before an ending).", ex:[["沙","saa1","sand"],["心","sam1","heart"]]},
+      {jp:"-m / -n / -ng", note:"Close your lips fully for -m.", ex:[["三","saam1","three"],["山","saan1","mountain"],["想","soeng2","to want"]]},
+      {jp:"-p / -t / -k", note:"Shape the ending but barely release it — clipped.", ex:[["十","sap6","ten"],["一","jat1","one"],["六","luk6","six"]]},
+      {jp:"oe", note:"A rounded vowel — like the 'eu' in French 'peu'.", ex:[["香","hoeng1","fragrant"],["靴","hoe1","boot"]]},
+      {jp:"eo", note:"A short rounded vowel, before n/t.", ex:[["春","ceon1","spring"],["信","seon3","letter"]]},
+      {jp:"yu", note:"Tight rounded 'ee' — French u / German ü.", ex:[["書","syu1","book"],["魚","jyu4","fish"]]},
+      {jp:"eoi", note:"Glides from the rounded vowel.", ex:[["水","seoi2","water"],["去","heoi3","to go"]]},
+      {jp:"ou", note:"Like saying 'oh'.", ex:[["好","hou2","good"],["路","lou6","road"]]},
+      {jp:"o / oi", note:"o as in 'or'; oi adds a glide.", ex:[["哥","go1","big brother"],["開","hoi1","to open"]]},
+      {jp:"ai vs aai", note:"Short ai vs long aai.", ex:[["西","sai1","west"],["太","taai3","too"]]},
+    ]
+  },
+  {
+    id:"blocks", title:"Building blocks", badge:"Lesson 4 · first words", type:"word",
+    intro:"The atoms of every sentence: who, the verb 'to be', having, good/bad, this/that, and the question words. Get these and you can already say a lot.",
+    items:[
+      ["我","ngo5","I / me",""],
+      ["你","nei5","you",""],
+      ["佢","keoi5","he / she / it",""],
+      ["我哋","ngo5 dei6","we / us","Add 哋 dei6 to make a pronoun plural."],
+      ["你哋","nei5 dei6","you (plural)",""],
+      ["佢哋","keoi5 dei6","they / them",""],
+      ["係","hai6","to be / yes",""],
+      ["唔係","m4 hai6","is not / no","唔 m4 is the all-purpose 'not'."],
+      ["有","jau5","to have / there is",""],
+      ["冇","mou5","to not have / there isn't",""],
+      ["好","hou2","good / very","Also means 'very': 好好 = very good."],
+      ["唔好","m4 hou2","not good / don't",""],
+      ["呢個","ni1 go3","this one",""],
+      ["嗰個","go2 go3","that one",""],
+      ["乜嘢","mat1 je5","what",""],
+      ["邊個","bin1 go3","who / which one",""],
+      ["點","dim2","how",""],
+    ]
+  },
+  {
+    id:"first", title:"Your first sentences", badge:"Lesson 5 · put it together", type:"word",
+    intro:"Now snap the blocks together. Notice the yes/no trick below — it builds half of these for you.",
+    keynote:["The yes/no trick","To ask a yes/no question, say the word, then 唔 (not), then the word again. <code>係唔係</code> = 'is it?', <code>有冇</code> = 'do you have?', <code>好唔好</code> = 'is it good / okay?'. No question word needed."],
+    items:[
+      ["我係…","ngo5 hai6","I am…",""],
+      ["你係唔係…?","nei5 hai6 m4 hai6","Are you…?","The X-唔-X yes/no pattern."],
+      ["呢個係…","ni1 go3 hai6","This is…",""],
+      ["呢個係乜嘢?","ni1 go3 hai6 mat1 je5","What is this?",""],
+      ["我有…","ngo5 jau5","I have…",""],
+      ["你有冇…?","nei5 jau5 mou5","Do you have…?","有冇 = have-not-have."],
+      ["好唔好?","hou2 m4 hou2","Is it good? / Okay?",""],
+      ["佢係邊個?","keoi5 hai6 bin1 go3","Who is he / she?",""],
+    ]
+  },
+];
+
+/* ============================================================
+   STATE + PERSISTENCE
+============================================================ */
+/* --- storage fallback for static hosting (Firebase/Netlify/etc.) ---
+   Uses Claude's window.storage when present; otherwise persists to this
+   device's localStorage so progress survives refreshes. */
+if (typeof window !== "undefined" && !window.storage) {
+  window.storage = {
+    get:    async (k)      => { const v = localStorage.getItem(k); return v == null ? null : {key:k, value:v, shared:false}; },
+    set:    async (k, v)   => { localStorage.setItem(k, String(v)); return {key:k, value:v, shared:false}; },
+    delete: async (k)      => { localStorage.removeItem(k); return {key:k, deleted:true, shared:false}; },
+    list:   async (p="")   => { const keys=[]; for(let i=0;i<localStorage.length;i++){const kk=localStorage.key(i); if(kk&&kk.startsWith(p))keys.push(kk);} return {keys, prefix:p, shared:false}; }
+  };
+}
+const STORE_KEY="canto:found:v1";
+let state={ done:{} };
+let memFallback=false;
+async function loadState(){ try{ const r=await window.storage.get(STORE_KEY); if(r&&r.value) state=Object.assign(state,JSON.parse(r.value)); }catch(e){} }
+let saveTimer=null;
+async function saveState(){ clearTimeout(saveTimer); saveTimer=setTimeout(async()=>{ try{ await window.storage.set(STORE_KEY,JSON.stringify(state)); }catch(e){ memFallback=true; } },120); }
+const itemId=(lid,i)=>lid+":"+i;
+const isDone=(lid,i)=>!!state.done[itemId(lid,i)];
+function setDone(lid,i,v){ const k=itemId(lid,i); if(v)state.done[k]=1; else delete state.done[k]; saveState(); }
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $=s=>document.querySelector(s);
+const lessonById=id=>LESSONS.find(l=>l.id===id);
+const lessonDone=l=>l.items.reduce((n,_,i)=>n+(isDone(l.id,i)?1:0),0);
+const lessonComplete=l=>lessonDone(l)===l.items.length;
+const totalItems=()=>LESSONS.reduce((n,l)=>n+l.items.length,0);
+const totalDone=()=>Object.keys(state.done).length;
+function romanHTML(jp){ return jp.split(" ").map(syl=>{ const m=syl.match(/^(.*?)([1-6])$/); return m?m[1]+'<span class="tn t'+m[2]+'">'+m[2]+'</span>':syl; }).join(" "); }
+
+let cantoVoice=null;
+function pickVoice(){ if(!('speechSynthesis'in window))return; const vs=speechSynthesis.getVoices();
+  cantoVoice=vs.find(v=>/zh-HK|yue|cantonese|粵|廣/i.test(v.lang+" "+v.name))||vs.find(v=>/zh-Hant|zh-TW/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang))||null; }
+if('speechSynthesis'in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function speak(han){ if(!('speechSynthesis'in window))return; speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(String(han).replace(/[?？…]/g,"")); u.lang="zh-HK"; if(cantoVoice)u.voice=cantoVoice; u.rate=.82; speechSynthesis.speak(u); }
+const ICON={
+  spk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  go:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>'
+};
+
+/* ============================================================
+   HOME / PATH
+============================================================ */
+function updateHomeProgress(){
+  const total=totalItems(), done=totalDone(), pct=total?done/total:0, C=2*Math.PI*19;
+  $("#ringFg").style.strokeDasharray=C.toFixed(1);
+  $("#ringFg").style.strokeDashoffset=(C*(1-pct)).toFixed(1);
+  $("#progPct").textContent=Math.round(pct*100)+"%";
+}
+function renderPath(){
+  const path=$("#path"); path.innerHTML="";
+  LESSONS.forEach((l,idx)=>{
+    const done=lessonDone(l), total=l.items.length, complete=done===total;
+    const btn=document.createElement("button"); btn.className="stone"+(complete?" done":"");
+    btn.innerHTML=`
+      <div class="node">${complete?ICON.check:idx}</div>
+      <div class="info">
+        <h3>${l.title}</h3>
+        <div class="sub">${l.badge.split("·")[1].trim()}</div>
+        <div class="mini ${complete?'done':''}">${complete?'Complete':done+' / '+total+' done'}</div>
+      </div>
+      <span class="go">${ICON.go}</span>`;
+    btn.addEventListener("click",()=>openLesson(l.id));
+    path.appendChild(btn);
+  });
+  updateHomeProgress();
+}
+
+/* ============================================================
+   LESSON RENDERING
+============================================================ */
+let currentLesson=null;
+function openLesson(id){
+  currentLesson=id;
+  const l=lessonById(id);
+  $("#home").style.display="none";
+  $("#lesson").style.display="block";
+  $("#lBadge").textContent=l.badge;
+  $("#lTitle").textContent=l.title;
+  $("#lIntro").textContent=l.intro;
+  const idx=LESSONS.findIndex(x=>x.id===id);
+  const nextBtn=$("#nextBtn");
+  if(idx<LESSONS.length-1){ nextBtn.style.display=""; nextBtn.disabled=false; nextBtn.textContent="Next: "+LESSONS[idx+1].title+" →"; }
+  else { nextBtn.style.display="none"; }
+  $("#lFootNote").innerHTML = idx===LESSONS.length-1
+    ? 'That\u2019s the foundations done. Next stop: the <strong>Basic Cantonese</strong> app.'
+    : '';
+  window.scrollTo(0,0);
+  renderLessonBody();
+}
+function backHome(){
+  if('speechSynthesis'in window) speechSynthesis.cancel();
+  $("#lesson").style.display="none";
+  $("#home").style.display="block";
+  renderPath();
+}
+function toneCurve(pts,col){
+  const d=pts.map((p,i)=>(i?"L":"M")+p[0]+" "+p[1]).join(" ");
+  return `<svg class="curve" viewBox="0 0 100 54" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="6" y1="6" x2="6" y2="48" stroke="var(--line)" stroke-width="1"/>
+    <line x1="6" y1="27" x2="94" y2="27" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>
+    <path d="${d}" fill="none" stroke="var(${col})" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3.6" fill="var(${col})"/>
+  </svg>`;
+}
+function renderLessonBody(){
+  const l=lessonById(currentLesson), body=$("#lBody");
+  body.innerHTML="";
+  if(l.keynote){
+    const kn=document.createElement("div"); kn.className="keynote";
+    kn.innerHTML=`<h4><span class="d"></span>${l.keynote[0]}</h4><p>${l.keynote[1]}</p>`;
+    body.appendChild(kn);
+  }
+
+  if(l.type==="concept"){
+    l.items.forEach((it,i)=>{
+      const done=isDone(l.id,i);
+      const el=document.createElement("div"); el.className="concept"+(done?" done":"");
+      el.innerHTML=`<button class="ck ${done?'on':''}" aria-label="Mark read">${ICON.check}</button>
+        <div class="cc"><h4>${it[0]}</h4><p>${it[1]}</p></div>`;
+      el.querySelector(".ck").addEventListener("click",()=>{ setDone(l.id,i,!isDone(l.id,i)); renderLessonBody(); refreshLessonBar(); });
+      body.appendChild(el);
+    });
+  }
+
+  else if(l.type==="tone"){
+    const grid=document.createElement("div"); grid.className="tone-grid";
+    l.items.forEach((t,i)=>{
+      const done=isDone(l.id,i), col="--t"+t.n;
+      const el=document.createElement("div"); el.className="tone-card"+(done?" done":"");
+      el.innerHTML=`
+        <div class="th">
+          <div><div class="tnum" style="color:var(${col})">Tone ${t.n}</div><div class="name">${t.name}</div></div>
+          <button class="ck ${done?'on':''}" aria-label="Mark learned">${ICON.check}</button>
+        </div>
+        ${toneCurve(t.pts,col)}
+        <div class="ex">
+          <span class="syl" style="color:var(${col})">${t.syl}</span>
+          <span class="gloss">${t.han}</span>
+          <button aria-label="Hear it">${ICON.spk}</button>
+        </div>`;
+      el.querySelector(".ck").addEventListener("click",()=>{ setDone(l.id,i,!isDone(l.id,i)); renderLessonBody(); refreshLessonBar(); });
+      el.querySelector(".ex button").addEventListener("click",()=>speak(t.han.split(" ")[0]));
+      grid.appendChild(el);
+    });
+    body.appendChild(grid);
+  }
+
+  else if(l.type==="sound"){
+    l.items.forEach((s,i)=>{
+      const done=isDone(l.id,i);
+      const el=document.createElement("div"); el.className="sound"+(done?" done":"");
+      const exHTML=s.ex.map(e=>`<div class="ex" data-han="${e[0]}">
+          <span class="exh">${e[0]}</span>
+          <span class="exi"><span class="exr">${romanHTML(e[1])}</span><br><span class="exe">${e[2]}</span></span>
+          <span class="pi">${ICON.spk}</span></div>`).join("");
+      el.innerHTML=`
+        <div class="sh">
+          <span class="sj">${s.jp}</span>
+          <span class="snote">${s.note}</span>
+          <button class="ck ${done?'on':''}" aria-label="Mark learned">${ICON.check}</button>
+        </div>
+        <div class="exs">${exHTML}</div>`;
+      el.querySelector(".ck").addEventListener("click",()=>{ setDone(l.id,i,!isDone(l.id,i)); renderLessonBody(); refreshLessonBar(); });
+      el.querySelectorAll(".ex").forEach(ex=>ex.addEventListener("click",()=>speak(ex.dataset.han)));
+      body.appendChild(el);
+    });
+  }
+
+  else if(l.type==="word"){
+    l.items.forEach((c,i)=>{
+      const [han,jp,en,note]=c, done=isDone(l.id,i);
+      const el=document.createElement("div"); el.className="word"+(done?" done":"");
+      el.innerHTML=`
+        <div class="han">${han}</div>
+        <div class="txt">
+          <div class="roman">${romanHTML(jp)}</div>
+          <div class="en">${en}</div>
+          ${note?`<div class="note">${note}</div>`:""}
+        </div>
+        <div class="acts">
+          <button class="icirc play" aria-label="Hear it">${ICON.spk}</button>
+          <button class="icirc mark ${done?'on':''}" aria-label="Mark learned">${ICON.check}</button>
+        </div>`;
+      el.querySelector(".play").addEventListener("click",()=>speak(han));
+      el.querySelector(".mark").addEventListener("click",()=>{ setDone(l.id,i,!isDone(l.id,i)); renderLessonBody(); refreshLessonBar(); });
+      body.appendChild(el);
+    });
+  }
+
+  refreshLessonBar();
+}
+function refreshLessonBar(){
+  const l=lessonById(currentLesson), done=lessonDone(l), total=l.items.length;
+  $("#lBar").style.width=(total?done/total*100:0)+"%";
+  $("#lBarLbl").textContent=`${done} / ${total}`;
+  $("#doneAll").textContent = done===total ? "✓ Lesson complete" : "Mark all complete";
+}
+
+/* ============================================================
+   CONTROLS
+============================================================ */
+$("#backBtn").addEventListener("click",backHome);
+$("#doneAll").addEventListener("click",()=>{
+  const l=lessonById(currentLesson);
+  const allDone=lessonDone(l)===l.items.length;
+  l.items.forEach((_,i)=>setDone(l.id,i,!allDone));
+  renderLessonBody();
+});
+$("#nextBtn").addEventListener("click",()=>{
+  const idx=LESSONS.findIndex(x=>x.id===currentLesson);
+  if(idx<LESSONS.length-1) openLesson(LESSONS[idx+1].id);
+});
+$("#resetBtn").addEventListener("click",async()=>{
+  if(!confirm("Reset all course progress?"))return;
+  state={ done:{} };
+  try{ await window.storage.delete(STORE_KEY); }catch(e){}
+  renderPath();
+});
+
+/* INIT */
+(async function init(){
+  await loadState();
+  renderPath();
+})();
+</script>
+<script src="voice.js"></script>
+</body>
+</html>
