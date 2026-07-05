@@ -56,8 +56,8 @@
   .tabs-inner{display:flex;gap:6px;background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab{flex:1 0 auto;white-space:nowrap;border:none;background:none;font-family:inherit;font-weight:600;font-size:14px;color:var(--ink-soft);padding:10px 16px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:7px}
   .tab .ji{font-family:"Noto Serif HK",serif;font-size:13px;opacity:.5}
-  .tab[aria-selected="true"]{background:var(--ink);color:#fff}
-  .tab[aria-selected="true"] .ji{opacity:.9;color:var(--gold)}
+  .tab[aria-selected="true"]{background:var(--rose);color:#0a101d}
+  .tab[aria-selected="true"] .ji{opacity:.9;color:#0a101d}
   .tab:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
 
   .panel{display:none;animation:fade .35s ease}
@@ -105,8 +105,8 @@
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .chip{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:99px;padding:8px 14px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
   .chip .cnt{font-size:11px;color:var(--brush);font-weight:500}
-  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .chip[aria-pressed="true"] .cnt{color:#c9bcb0}
+  .chip[aria-pressed="true"]{background:var(--rose);color:#0a101d;border-color:var(--rose)}
+  .chip[aria-pressed="true"] .cnt{color:rgba(10,16,29,.65)}
   .chip:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
   .deckbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .bar{flex:1 1 auto;height:7px;background:var(--card-2);border:1px solid var(--line);border-radius:99px;overflow:hidden}

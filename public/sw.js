@@ -2,7 +2,7 @@
    Precaches the app shell so every lesson works offline after the
    first visit, and runtime-caches the Google Fonts. Bump CACHE
    (e.g. v2, v3) whenever you redeploy changed files. */
-const CACHE = "canto-v7";
+const CACHE = "canto-v10";
 
 const ASSETS = [
   "/",
@@ -15,6 +15,7 @@ const ASSETS = [
   "/cantonese-listening-dojo.html",
   "/cantonese-characters.html",
   "/night.css",
+  "/nav.js",
   "/data/found.js",
   "/data/chars.js",
   "/data/basics.js",

@@ -33,7 +33,7 @@
   .presets button.on{background:var(--gold);color:#2a210a;border-color:var(--gold)}
   input[type=range]{width:100%;accent-color:var(--gold)}
 
-  nav{display:flex;gap:6px;background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:20px}
+  nav[role="tablist"]{display:flex;gap:6px;background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:20px}
   .tab{flex:1;border:none;background:none;font-family:inherit;font-weight:600;font-size:13.5px;color:var(--muted);padding:10px;border-radius:8px;cursor:pointer}
   .tab[aria-selected=true]{background:var(--paper);color:#16161f}
   .panel{display:none}.panel.active{display:block}
@@ -55,6 +55,7 @@
   .reveal .roman{font-family:"Space Mono",monospace;font-size:15px;color:var(--sky);margin-top:8px;opacity:0;transition:opacity .3s}
   .reveal .en{font-size:15px;color:var(--muted);margin-top:6px;opacity:0;transition:opacity .3s}
   .reveal.shown .han,.reveal.shown .roman,.reveal.shown .en{opacity:1}
+  .reveal.instant .han,.reveal.instant .roman,.reveal.instant .en{transition:none}
   .t1{color:var(--t1)}.t2{color:var(--t2)}.t3{color:var(--t3)}.t4{color:var(--t4)}.t5{color:var(--t5)}.t6{color:var(--t6)}.tn{font-weight:700}
 
   .act-row{display:flex;gap:10px;margin-top:20px}
@@ -204,6 +205,15 @@ const $=s=>document.querySelector(s);
 function roman(jp){ return jp.split(" ").map(s=>{const m=s.match(/^(.*?)([1-6])$/);return m?m[1]+'<span class="tn t'+m[2]+'">'+m[2]+'</span>':s;}).join(" "); }
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const shuf=a=>a.slice().sort(()=>Math.random()-.5);
+/* Hide a reveal box with no fade so the outgoing answer can't linger
+   on screen (or flash through) while the next item's text is already
+   loaded underneath it. */
+function hideRevealInstant(el){
+  el.classList.add('instant');
+  el.classList.remove('shown');
+  void el.offsetHeight;
+  el.classList.remove('instant');
+}
 
 /* ---- speed ---- */
 function setRate(r){ rate=r; $("#rate").value=r; $("#rateVal").textContent=r.toFixed(2)+"×";
@@ -222,7 +232,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 /* ---- LISTEN ---- */
 let lLvl=1, lCur=null;
 function lPool(){ return ITEMS.filter(i=>i[3]===lLvl); }
-function lLoad(){ lCur=rnd(lPool()); $("#lReveal").classList.remove('shown');
+function lLoad(){ lCur=rnd(lPool()); hideRevealInstant($("#lReveal"));
   $("#lHan").textContent=lCur[0]; $("#lRoman").innerHTML=roman(lCur[1]); $("#lEn").textContent=lCur[2]; }
 document.querySelectorAll('#lvlPick button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('#lvlPick button').forEach(x=>x.classList.toggle('on',x===b));
@@ -236,7 +246,7 @@ lLoad();
 
 /* ---- CATCH IT ---- */
 let cCur=null,cScore=0,cSeen=0,cDone=false;
-function cLoad(){ cDone=false; cCur=rnd(ITEMS.filter(i=>i[3]>=2)); $("#cReveal").classList.remove('shown');
+function cLoad(){ cDone=false; cCur=rnd(ITEMS.filter(i=>i[3]>=2)); hideRevealInstant($("#cReveal"));
   $("#cHan").textContent=cCur[0]; $("#cRoman").innerHTML=roman(cCur[1]); $("#cNext").style.display='none';
   const opts=shuf([cCur[2],...shuf(ITEMS.filter(i=>i[2]!==cCur[2])).slice(0,3).map(i=>i[2])]);
   const box=$("#cOpts"); box.innerHTML='';
@@ -259,7 +269,7 @@ cLoad();
 /* ---- NUMBERS ---- */
 let nCur=null,nScore=0,nSeen=0,nDone=false;
 function nPromptText(t){ return t==='price'?'How much did they say?':t==='time'?'What time did they say?':t==='qty'?'How many did they say?':'Which number did they say?'; }
-function nLoad(){ nDone=false; nCur=rnd(NUMS); $("#nReveal").classList.remove('shown');
+function nLoad(){ nDone=false; nCur=rnd(NUMS); hideRevealInstant($("#nReveal"));
   $("#nPrompt").textContent=nPromptText(nCur.t);
   $("#nHan").textContent=nCur.han; $("#nRoman").innerHTML=roman(nCur.jp); $("#nNext").style.display='none';
   const used=new Set([nCur.a]), pool=[];

@@ -7,8 +7,11 @@
 
   var css = document.createElement("style");
   css.textContent =
-    "#cn-nav{position:fixed;left:0;right:0;bottom:0;z-index:99990;display:flex;justify-content:center;" +
-    "background:rgba(7,11,20,.92);border-top:1px solid #1d2842;" +
+    // margin/border/border-radius are reset explicitly so a page-level bare
+    // `nav {}` rule (e.g. a lesson page's own tab bar) can't leak into and
+    // lift/restyle this injected nav.
+    "#cn-nav{position:fixed;left:0;right:0;bottom:0;z-index:99990;display:flex;justify-content:center;margin:0;" +
+    "background:rgba(7,11,20,.92);border:0;border-top:1px solid #1d2842;border-radius:0;" +
     "padding:8px 10px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}" +
     "#cn-nav .in{display:flex;width:100%;max-width:560px}" +
     "#cn-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#5f6b8c;text-decoration:none;" +

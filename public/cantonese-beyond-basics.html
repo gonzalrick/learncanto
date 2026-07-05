@@ -59,8 +59,8 @@
   .tabs-inner{display:flex;gap:5px;background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab{flex:1 0 auto;white-space:nowrap;border:none;background:none;font-family:inherit;font-weight:600;font-size:13.5px;color:var(--ink-soft);padding:9px 13px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:7px}
   .tab .ji{font-family:"Noto Serif HK",serif;font-size:13px;opacity:.5}
-  .tab[aria-selected="true"]{background:var(--ink);color:#fff}
-  .tab[aria-selected="true"] .ji{opacity:.9;color:var(--ochre)}
+  .tab[aria-selected="true"]{background:var(--plum);color:#0a101d}
+  .tab[aria-selected="true"] .ji{opacity:.9;color:#0a101d}
   .tab:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
 
   .panel{display:none;animation:fade .35s ease}
@@ -72,8 +72,8 @@
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
   .chip{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:99px;padding:8px 14px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
   .chip .cnt{font-size:11px;color:var(--brush);font-weight:500}
-  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .chip[aria-pressed="true"] .cnt{color:#c9bdb2}
+  .chip[aria-pressed="true"]{background:var(--plum);color:#0a101d;border-color:var(--plum)}
+  .chip[aria-pressed="true"] .cnt{color:rgba(10,16,29,.65)}
   .chip:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
 
   .deckbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -154,7 +154,7 @@
   .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;text-align:center;box-shadow:var(--shadow)}
   .face.front .han{font-family:"Noto Serif HK",serif;font-weight:700;font-size:clamp(46px,14vw,82px);line-height:1.1;color:var(--ink)}
   .face.front .hint{margin-top:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brush)}
-  .face.back{transform:rotateY(180deg);background:var(--ink);border-color:var(--ink)}
+  .face.back{transform:rotateY(180deg);background:var(--card-2);border-color:var(--card-2)}
   .face.back .roman{font-family:"Space Mono",monospace;font-size:clamp(20px,5.5vw,28px);color:#fff;font-weight:700}
   .face.back .en{margin-top:12px;font-size:18px;color:#ddd2c6}
   .face.back .nt{margin-top:9px;font-size:13px;color:#b3a89c;font-style:italic;max-width:32ch}
@@ -183,13 +183,13 @@
   .opt.correct{background:#e4f0e9;border-color:var(--leaf);color:#2f6b50;font-weight:600}
   .opt.wrong{background:#f4e2ec;border-color:var(--plum);color:var(--plum-deep)}
   .opt:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
-  .qnext{margin-top:14px;width:100%;font-family:inherit;font-weight:700;font-size:15px;border:none;background:var(--ink);color:#fff;border-radius:13px;padding:15px;cursor:pointer}
+  .qnext{margin-top:14px;width:100%;font-family:inherit;font-weight:700;font-size:15px;border:none;background:var(--plum);color:#0a101d;border-radius:13px;padding:15px;cursor:pointer}
   .qnext:disabled{opacity:.35;cursor:default}
   .quiz-done{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:34px 24px;box-shadow:var(--shadow)}
   .quiz-done .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:52px;color:var(--leaf);line-height:1}
   .quiz-done .han{font-family:"Noto Serif HK",serif;font-size:30px;color:var(--plum);margin:10px 0}
   .quiz-done p{color:var(--ink-soft);margin:8px 0 18px}
-  .quiz-done button{font-family:inherit;font-weight:700;border:none;background:var(--ink);color:#fff;border-radius:12px;padding:13px 26px;cursor:pointer}
+  .quiz-done button{font-family:inherit;font-weight:700;border:none;background:var(--plum);color:#0a101d;border-radius:12px;padding:13px 26px;cursor:pointer}
 
   footer{text-align:center;color:var(--brush);font-size:12px;margin-top:28px;line-height:1.7}
   footer .hz{color:var(--plum)}
@@ -497,7 +497,7 @@ function buildChips(container,current,onPick,withAll){
     const done=id==="__all"?DECKS.reduce((n,d)=>n+knownInDeck(d.id),0):knownInDeck(id);
     const b=document.createElement("button"); b.className="chip"; b.setAttribute("aria-pressed",cur===id);
     b.innerHTML=`${label}<span class="cnt">${done}/${total}</span>`;
-    b.addEventListener("click",()=>onPick(id)); container.appendChild(b);
+    b.addEventListener("click",()=>{ container.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); onPick(id); }); container.appendChild(b);
   };
   if(withAll) make("__all","All",current);
   DECKS.forEach(d=>make(d.id,d.name,current));

@@ -516,7 +516,7 @@ function buildChips(container,current,onPick,withAll){
     const done=id==="__all"?knownTotal():knownInDeck(id);
     const b=document.createElement("button"); b.className="chip"; b.setAttribute("aria-pressed",cur===id);
     b.innerHTML=`${label}<span class="cnt">${done}/${total}</span>`;
-    b.addEventListener("click",()=>onPick(id)); container.appendChild(b);
+    b.addEventListener("click",()=>{ container.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); onPick(id); }); container.appendChild(b);
   };
   if(withAll) make("__all","All",current);
   DECKS.forEach(d=>make(d.id,d.name,current));

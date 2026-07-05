@@ -559,16 +559,57 @@ function jpHTML(jp){
 ============================================================ */
 var ICON_CK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 var nav=$("#pNav");
+var lastTab="v-today";
 function show(id){
   document.querySelectorAll(".view").forEach(function(v){ v.classList.toggle("on",v.id===id); });
   nav.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on",b.dataset.v===id); });
   document.body.classList.toggle("in-session",id==="v-session");
+  if(id!=="v-session") lastTab=id;
   window.scrollTo(0,0);
   if(id==="v-today") renderToday();
   if(id==="v-line") renderLine();
   if(id==="v-practice") renderPracticeMeta();
 }
-nav.querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ show(b.dataset.v); }); });
+
+/* ============================================================
+   NAVIGATION HISTORY
+   - Tabs (Today/Line/Practice) replace the current history entry
+     so switching tabs never piles up back-stack depth, but the
+     hash stays in sync so a link from another page (nav.js uses
+     /index.html#line etc.) opens the right tab instead of always
+     landing on Today.
+   - Opening a session pushes a new entry, so the hardware/browser
+     back button closes the session instead of leaving the app.
+   - One extra guard entry is pushed on first load so a single
+     back press on the home tab is absorbed harmlessly instead of
+     showing a blank page (a known PWA/back-button quirk).
+============================================================ */
+function hashForView(id){ return id==="v-line"?"line":id==="v-practice"?"practice":"today"; }
+function viewForHash(){
+  var h=(location.hash||"").replace("#","");
+  return h==="line"?"v-line":h==="practice"?"v-practice":"v-today";
+}
+function goTab(id){
+  show(id);
+  var hash="#"+hashForView(id);
+  history.replaceState({view:id},"",hash);
+}
+function openSession(){
+  show("v-session");
+  history.pushState({view:lastTab,session:true},"",location.hash||"#today");
+}
+function closeSession(toToday){
+  var target=toToday?"v-today":lastTab;
+  show(target);
+  history.replaceState({view:target},"","#"+hashForView(target));
+}
+window.addEventListener("popstate",function(e){
+  var st=e.state;
+  if(st && st.session){ show("v-session"); return; }
+  if("speechSynthesis" in window){ try{ speechSynthesis.cancel(); }catch(err){} }
+  show((st && st.view) || viewForHash());
+});
+nav.querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ goTab(b.dataset.v); }); });
 
 /* ============================================================
    TODAY
@@ -578,9 +619,8 @@ var WD_HK=["日","一","二","三","四","五","六"];
 function sessionPlan(){
   var due=srsDue();
   var reviews=due.slice(0,6);
-  var nNew=reviews.length>=5?2:4;
-  var fresh=nextWordFeed(nNew);
-  var ears=earItems(reviews.length+fresh.length?2:4);
+  var fresh=nextWordFeed(5);
+  var ears=earItems(5);
   return {reviews:reviews,fresh:fresh,ears:ears};
 }
 function renderToday(){
@@ -732,7 +772,7 @@ function startQueue(items,k){
   q=items; qi=0; kind=k; _cur=null;
   stats={rev:0,fresh:0,ear:0};
   segs.innerHTML=q.map(function(){return "<i></i>";}).join("");
-  show("v-session"); step();
+  openSession(); step();
 }
 function paintSegs(){ var el=segs.children; for(var i=0;i<el.length;i++) el[i].classList.toggle("f",i<qi); }
 function tagFor(it){
@@ -838,7 +878,7 @@ function done(){
   requestAnimationFrame(function(){ requestAnimationFrame(function(){
     var r=$("#ringF"); if(r) r.style.strokeDashoffset="0";
   });});
-  $("#bHome").addEventListener("click",function(){ show("v-today"); });
+  $("#bHome").addEventListener("click",function(){ closeSession(true); });
 }
 
 $("#startBtn").addEventListener("click",startRun);
@@ -847,7 +887,7 @@ $("#prCards").addEventListener("click",startCards);
 $("#prEar").addEventListener("click",startEarDrill);
 $("#ssClose").addEventListener("click",function(){
   if("speechSynthesis" in window){ try{ speechSynthesis.cancel(); }catch(e){} }
-  show("v-today");
+  closeSession(false);
 });
 $("#resetBtn").addEventListener("click",function(){
   if(!confirm("Reset ALL progress — every zone, the review schedule and your streak?")) return;
@@ -860,7 +900,13 @@ $("#resetBtn").addEventListener("click",function(){
 
 /* INIT */
 srsSeed();
-renderToday();
+var initialView=viewForHash();
+show(initialView);
+history.replaceState({view:initialView},"","#"+hashForView(initialView));
+/* Guard entry: absorbs the first back-button press on a fresh app
+   launch so it lands harmlessly back on this same screen instead
+   of showing a blank page (a common PWA back-button quirk). */
+history.pushState({view:initialView},"","#"+hashForView(initialView));
 })();
 </script>
 </body>

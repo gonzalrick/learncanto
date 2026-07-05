@@ -231,8 +231,8 @@
         opacity: 0.55;
       }
       .tab[aria-selected="true"] {
-        background: var(--ink);
-        color: #fff;
+        background: var(--jade);
+        color: #0a101d;
       }
       .tab[aria-selected="true"] .ji {
         opacity: 0.85;
@@ -421,12 +421,12 @@
         font-weight: 500;
       }
       .chip[aria-pressed="true"] {
-        background: var(--ink);
-        color: #fff;
-        border-color: var(--ink);
+        background: var(--jade);
+        color: #0a101d;
+        border-color: var(--jade);
       }
       .chip[aria-pressed="true"] .cnt {
-        color: #b9b3a6;
+        color: rgba(10, 16, 29, 0.65);
       }
       .chip:focus-visible {
         outline: 2px solid var(--seal);
@@ -608,8 +608,8 @@
       }
       .face.back {
         transform: rotateY(180deg);
-        background: var(--ink);
-        border-color: var(--ink);
+        background: var(--card-2);
+        border-color: var(--card-2);
       }
       .face.back .roman {
         font-family: "Space Mono", monospace;
@@ -769,8 +769,8 @@
         font-weight: 700;
         font-size: 15px;
         border: none;
-        background: var(--ink);
-        color: #fff;
+        background: var(--jade);
+        color: #0a101d;
         border-radius: 13px;
         padding: 15px;
         cursor: pointer;
@@ -808,8 +808,8 @@
         font-family: inherit;
         font-weight: 700;
         border: none;
-        background: var(--ink);
-        color: #fff;
+        background: var(--jade);
+        color: #0a101d;
         border-radius: 12px;
         padding: 13px 26px;
         cursor: pointer;
@@ -1422,7 +1422,16 @@
           b.className = "chip";
           b.setAttribute("aria-pressed", cur === id);
           b.innerHTML = `${label}<span class="cnt">${done}/${total}</span>`;
-          b.addEventListener("click", () => onPick(id));
+          b.addEventListener("click", () => {
+            // Update the pressed state immediately so the pill activates on
+            // click, even when onPick only re-renders the card/quiz (not the
+            // chips). Fixes Cards/Quiz pills not highlighting until a tab switch.
+            container
+              .querySelectorAll(".chip")
+              .forEach((c) => c.setAttribute("aria-pressed", "false"));
+            b.setAttribute("aria-pressed", "true");
+            onPick(id);
+          });
           container.appendChild(b);
         };
         if (withAll) make("__all", "All decks", current);
