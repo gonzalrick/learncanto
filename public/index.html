@@ -13,7 +13,7 @@
     --bg:#0a101d; --surface:#131b2e; --surface2:#1a2440; --raise:#243050;
     --ink:#edf1fa; --ink2:#a9b3cc; --mut:#5f6b8c; --line:#243050; --line2:#1d2842;
     --acc:#ff5468; --acc2:#ff7a8a; --on-acc:#1a040b;
-    --l0:#3faee6; --l1:#1fbe79; --fam:#e45fab; --l15:#9f79e4; --l2:#f0993f; --dojo:#26c7bf;
+    --l0:#3faee6; --l1:#1fbe79; --fam:#e45fab; --l15:#9f79e4; --l2:#f0993f; --dojo:#26c7bf; --chars:#ffc14d;
     --t1:#ff6b5e; --t2:#ffb43a; --t3:#4ed9a2; --t4:#57b0ff; --t5:#b48cff; --t6:#8e9bb8;
     --disp:"Archivo","Inter",system-ui,sans-serif;
     --body:"Inter",system-ui,-apple-system,sans-serif;
@@ -129,9 +129,9 @@
   .stn.done .s-tag,.stn.cur .s-tag{color:var(--zc)}
   .stn .s-tag .ckc{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--zc);color:var(--bg);vertical-align:-4px}
   .stn .s-tag .ckc svg{width:9px;height:9px}
-  .branch{margin:2px 0 6px 29px;border-left:3px dashed var(--fam);padding:4px 0 4px 17px;position:relative}
-  .branch::before{content:"";position:absolute;left:-14px;top:-7px;width:24px;height:16px;border-bottom-left-radius:14px;border-left:3px dashed var(--fam);border-bottom:3px dashed var(--fam);opacity:.8}
-  .branch .b-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--fam);margin:5px 0}
+  .branch{--bc:var(--fam);margin:2px 0 6px 29px;border-left:3px dashed var(--bc);padding:4px 0 4px 17px;position:relative}
+  .branch::before{content:"";position:absolute;left:-14px;top:-7px;width:24px;height:16px;border-bottom-left-radius:14px;border-left:3px dashed var(--bc);border-bottom:3px dashed var(--bc);opacity:.8}
+  .branch .b-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc);margin:5px 0}
   .branch .stn{padding-left:0}
   .branch .stn .rail{display:none}
   .terminus{margin:8px 0 0 3px;display:flex;align-items:center;gap:14px}
@@ -192,8 +192,11 @@
   .ss-acts .again{background:var(--surface2);color:var(--ink2)}
   .ss-acts .good{background:var(--acc);color:var(--on-acc)}
   .ss-acts .good.teal{background:var(--t3);color:#04160d}
-  .opts{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:20px}
+  .opts{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:18px}
   .opts button{border:1.5px solid var(--line);background:var(--surface2);border-radius:14px;padding:13px;color:var(--ink);font-size:15px}
+  .ear-word{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:16px}
+  .ear-word .ew-han{font-family:var(--hk);font-weight:600;font-size:clamp(30px,9vw,42px);line-height:1.2}
+  .ear-word .jpl{font-family:var(--mono);font-size:15px}
   .opts button.right{border-color:var(--t3);background:color-mix(in srgb,var(--t3) 18%,var(--surface2));color:var(--t3)}
   .opts button.wrong{border-color:var(--t1);background:color-mix(in srgb,var(--t1) 14%,var(--surface2));color:var(--t1);animation:shake .35s}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -309,6 +312,11 @@
       <span class="pr-t"><b>Flashcards<span class="pr-badge" id="prCardsN">0 due</span></b><small>Spaced review across every zone — clears tomorrow's queue early</small></span>
       <span class="pr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
     </button>
+    <a class="pr-tile" href="cantonese-characters.html">
+      <span class="pr-i" style="background:var(--chars);color:#1d1403"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2"/><path d="M12 5v14"/><path d="M8 19h8"/></svg></span>
+      <span class="pr-t"><b>Learn the Characters <span class="hk" style="font-weight:400;color:var(--mut)">認字</span></b><small>Optional reading branch — pictures first, zero experience needed</small></span>
+      <span class="pr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
     <button class="pr-tile" id="prEar">
       <span class="pr-i" style="background:var(--t4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 3-2 3.5-2 6a4 4 0 0 1-8 0"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></span>
       <span class="pr-t"><b>Quick ear drill</b><small>Six "what did you hear?" reps, right here</small></span>
@@ -341,6 +349,7 @@
 </div></nav>
 
 <script src="data/found.js"></script>
+<script src="data/chars.js"></script>
 <script src="data/basics.js"></script>
 <script src="data/family.js"></script>
 <script src="data/beyond.js"></script>
@@ -361,6 +370,7 @@ function readStore(key){ var r=lsGet(key); if(!r) return {}; try{ return JSON.pa
 
 var STORES={
   found:{key:"canto:found:v1",field:"done"},
+  chars:{key:"canto:chars:v1",field:"known"},
   basics:{key:"canto:v1",field:"known"},
   family:{key:"canto:family:v1",field:"known"},
   beyond:{key:"canto:beyond:v1",field:"known"},
@@ -390,6 +400,15 @@ var ZONES=[];
       return {id:l.id,title:l.title,sub:(l.badge.split("·")[1]||"").trim(),total:l.items.length,ns:"found",kp:l.id+":",
         vocab:l.type==="word"?words(l.items,l.id+":"):null};
     })});
+  // Reading branch — characters (elective, zero-experience friendly)
+  ZONES.push({id:"chars",pill:"Reading",name:"Learn the Characters",hk:"認字",cv:"--chars",page:"cantonese-characters.html",ns:"chars",elective:true,
+    blabel:"Reading branch — optional · learn to see the pictures",
+    stations:D.chars.LESSONS.map(function(l){
+      var vocab=null;
+      if(l.type==="pict"||l.type==="story") vocab=l.items.map(function(it,i){ return {han:it.han,jp:it.jp,en:it.en,nt:it.story||"",key:l.id+":"+i}; });
+      if(l.type==="read") vocab=words(l.items,l.id+":");
+      return {id:l.id,title:l.title,sub:(l.badge.split("·")[1]||"").trim(),total:l.items.length,ns:"chars",kp:l.id+":",vocab:vocab};
+    })});
   // L1 — basics decks
   ZONES.push({id:"l1",pill:"Zone L1",name:"Basics",hk:"基礎",cv:"--l1",page:"cantonese-basics.html",ns:"basics",elective:false,
     stations:D.basics.DECKS.map(function(d){
@@ -402,6 +421,7 @@ var ZONES=[];
     famStations.push({id:d.id,title:d.name,sub:d.han+" · "+d.cards.length+" phrases",total:d.cards.length,ns:"family",kp:"p:"+d.id+":",vocab:words(d.cards,"p:"+d.id+":")});
   });
   ZONES.push({id:"fam",pill:"Interchange",name:"Meeting the Family",hk:"見家長",cv:"--fam",page:"cantonese-meeting-the-family.html",ns:"family",elective:true,
+    blabel:"Interchange — side trip · ride any time",
     stations:famStations});
   // L1.5 — beyond decks
   ZONES.push({id:"l15",pill:"Zone L1.5",name:"Beyond the Basics",hk:"進階",cv:"--l15",page:"cantonese-beyond-basics.html",ns:"beyond",elective:false,
@@ -631,7 +651,7 @@ function renderLine(){
         +'<span class="s-tag">'+tag+"</span></a>";
     });
     if(isBranch){
-      html+='<div class="branch"><div class="b-lbl">Interchange — side trip · ride any time</div>'+inner+"</div>";
+      html+='<div class="branch" style="--bc:var('+z.cv+')"><div class="b-lbl">'+(z.blabel||"Side trip · ride any time")+"</div>"+inner+"</div>";
     }else{
       html+='<div class="zgroup" style="--zc:var('+z.cv+')">'
         +'<div class="zlabel"><span class="zl-pill">'+z.pill+'</span><span class="zl-n">'+z.name+'<span class="hk">'+z.hk+"</span></span></div>"
@@ -667,14 +687,20 @@ function earItems(n){
   while(out.length<n && guard++<200){
     var it=pool[Math.floor(Math.random()*pool.length)];
     if(used[it[0]]) continue; used[it[0]]=1;
-    var opts=[it[2]],oguard=0;
+    // options carry the whole word — sound, script and meaning stay associated
+    var opts=[{han:it[0],jp:it[1],en:it[2]}],seen={};
+    seen[it[2]]=1;
+    var oguard=0;
     while(opts.length<3 && oguard++<100){
-      var o=pool[Math.floor(Math.random()*pool.length)][2];
-      if(opts.indexOf(o)<0) opts.push(o);
+      var o=pool[Math.floor(Math.random()*pool.length)];
+      if(seen[o[2]]||o[0]===it[0]) continue;
+      seen[o[2]]=1; opts.push({han:o[0],jp:o[1],en:o[2]});
     }
     // shuffle
     for(var i=opts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)),t=opts[i]; opts[i]=opts[j]; opts[j]=t; }
-    out.push({han:it[0],jp:it[1],en:it[2],opts:opts,ok:opts.indexOf(it[2])});
+    var ok=-1;
+    for(var k=0;k<opts.length;k++) if(opts[k].han===it[0]) ok=k;
+    out.push({han:it[0],jp:it[1],en:it[2],opts:opts,ok:ok});
   }
   return out;
 }
@@ -769,8 +795,11 @@ function step(){
     var e=it.e;
     h+='<div class="ss-card">'
       +'<button class="spk big" id="earPlay" aria-label="Play audio"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>'
-      +'<div class="hint" style="margin-top:16px">Listen, then choose — replay as often as you like.</div>'
-      +'<div class="opts" id="earOpts">'+e.opts.map(function(o,i){ return '<button data-i="'+i+'">'+o+"</button>"; }).join("")+"</div></div>";
+      +'<div class="ear-word"><span class="ew-han hk">'+e.han+'</span><span class="jpl">'+jpHTML(e.jp)+"</span></div>"
+      +'<div class="hint" style="margin-top:10px">Listen while you read it — then tap what it means.</div>'
+      +'<div class="opts" id="earOpts">'+e.opts.map(function(o,i){
+        return '<button data-i="'+i+'">'+o.en+"</button>";
+      }).join("")+"</div></div>";
     stage.innerHTML=h;
     var play=$("#earPlay");
     var go=function(){ pulse(play); speak(e.han); };
