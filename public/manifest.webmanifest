@@ -1,14 +1,14 @@
 {
   "name": "Learn Cantonese 學廣東話",
   "short_name": "Cantonese",
-  "description": "A step-by-step Cantonese course: foundations, basics, family, conversation, and listening practice.",
+  "description": "Learn Cantonese with one five-minute session a day — spaced review, new words, and ear training on a single learning line.",
   "lang": "en",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f1ede4",
-  "theme_color": "#2c6657",
+  "background_color": "#0a101d",
+  "theme_color": "#0a101d",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -37,14 +37,14 @@
   ],
   "shortcuts": [
     {
+      "name": "Today's session",
+      "short_name": "Today",
+      "url": "/index.html"
+    },
+    {
       "name": "Listening Dojo",
       "short_name": "Listen",
       "url": "/cantonese-listening-dojo.html"
-    },
-    {
-      "name": "The July 30 Plan",
-      "short_name": "Basics",
-      "url": "/cantonese-basics.html"
     },
     {
       "name": "Meeting the Family",

@@ -1,0 +1,108 @@
+/* ============================================================
+   night.css — "Hong Kong at night" design system
+   Loaded AFTER each page's inline styles; flips the old paper
+   palettes to the unified night-navy system by overriding the
+   CSS custom properties each page already consumes.
+   Scoped with body[data-app="…"] because --paper means
+   "background" on the light pages but "text ink" on the pages
+   that were already dark (conversational, dojo).
+============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap");
+
+:root { color-scheme: dark; }
+
+/* ---------- formerly-light pages: foundations · basics · family · beyond ---------- */
+body[data-app="found"],
+body[data-app="basics"],
+body[data-app="family"],
+body[data-app="beyond"] {
+  /* grounds */
+  --paper: #0a101d;
+  --card: #131b2e;
+  --card-2: #1a2440;
+  --ink: #edf1fa;
+  --ink-soft: #a9b3cc;
+  --brush: #7e89a8;
+  --line: #243050;
+  --line-2: #1d2842;
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 14px 34px -22px rgba(0, 0, 0, 0.8);
+
+  /* zone accents, brightened for dark ground
+     (base name = fills, -deep = text on ground) */
+  --sky: #3faee6;        --sky-deep: #6fc4ee;      /* L0 foundations */
+  --dawn: #ff8a5c;       --dawn-deep: #ffa47c;
+  --jade: #1fbe79;       --jade-deep: #4ed9a2;     /* L1 basics */
+  --seal: #ff5468;       --seal-deep: #ff7a8a;
+  --amber: #ffb43a;
+  --rose: #e45fab;       --rose-deep: #f08ac4;     /* family branch */
+  --plum: #9f79e4;       --plum-deep: #be9df4;     /* L1.5 beyond */
+  --ochre: #f0993f;      --ochre-deep: #ffb367;
+  --leaf: #4ed9a2;
+  --gold: #ffc14d;       --gold-deep: #ffd47c;
+
+  /* tone code — one system everywhere */
+  --t1: #ff6b5e;
+  --t2: #ffb43a;
+  --t3: #4ed9a2;
+  --t4: #57b0ff;
+  --t5: #b48cff;
+  --t6: #8e9bb8;
+}
+
+/* ---------- conversational (was warm-dark → night navy) ---------- */
+body[data-app="conv"] {
+  --bg: #0a101d;
+  --surf: #131b2e;
+  --surf2: #1a2440;
+  --raise: #243050;
+  --paper: #edf1fa;   /* text ink on this page */
+  --muted: #a9b3cc;
+  --faint: #7e89a8;
+  --line: rgba(237, 241, 250, 0.13);
+  --line-2: rgba(237, 241, 250, 0.07);
+  --coral: #f0993f;        /* L2 zone = amber */
+  --coral-soft: #ffb367;
+  --mint: #4ed9a2;
+  --gold: #ffc14d;
+  --t1: #ff6b5e; --t2: #ffb43a; --t3: #4ed9a2; --t4: #57b0ff; --t5: #b48cff; --t6: #8e9bb8;
+  --glow: 0 0 0 1px var(--line), 0 18px 40px -22px rgba(0, 0, 0, 0.85);
+}
+
+/* ---------- listening dojo (was indigo-dark → night navy) ---------- */
+body[data-app="dojo"] {
+  --bg: #0a101d;
+  --surf: #131b2e;
+  --surf2: #1a2440;
+  --paper: #edf1fa;   /* text ink on this page */
+  --muted: #a9b3cc;
+  --faint: #7e89a8;
+  --line: rgba(237, 241, 250, 0.12);
+  --gold: #ffc14d;
+  --sky: #57b0ff;
+  --mint: #4ed9a2;
+  --rose: #ff5468;
+  --t1: #ff6b5e; --t2: #ffb43a; --t3: #4ed9a2; --t4: #57b0ff; --t5: #b48cff; --t6: #8e9bb8;
+}
+
+/* ============================================================
+   Type — wayfinding pairing
+   Display: Archivo · Chinese: system sans (street signage,
+   not calligraphy) · Jyutping/data: IBM Plex Mono
+============================================================ */
+h1, h2, h3, h4, h5,
+.display {
+  font-family: "Archivo", "Inter", system-ui, sans-serif !important;
+}
+
+/* Chinese: serif → sans */
+.hz, .sub, .han, .han-sm, .exh, .ji, .gloss,
+.kh, .ch, .egh, .frame, .pbtn {
+  font-family: "PingFang HK", "PingFang TC", "Hiragino Sans",
+    "Noto Sans HK", "Microsoft JhengHei", sans-serif !important;
+}
+
+/* jyutping + data: Plex Mono first */
+.jp, .roman, .exr, .syl, .sj, .kr-r, .egr, .pj,
+code {
+  font-family: "IBM Plex Mono", "Space Mono", ui-monospace, Menlo, monospace !important;
+}
