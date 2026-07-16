@@ -44,7 +44,7 @@ exports.translate = onRequest(
     try {
       const client = new Anthropic({ apiKey: anthropicApiKey.value() });
       const msg = await client.messages.create({
-        model: "claude-haiku-4-5",
+        model: "claude-sonnet-5",
         max_tokens: 300,
         system: SYSTEM,
         messages: [
