@@ -7,6 +7,7 @@ import { Foundations } from "./pages/Foundations";
 import { Characters } from "./pages/Characters";
 import { Dojo } from "./pages/Dojo";
 import { VocabLesson } from "./pages/VocabLesson";
+import { Search } from "./pages/Search";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Today /> },
       { path: "line", element: <Line /> },
       { path: "practice", element: <Practice /> },
+      { path: "search", element: <Search /> },
       { path: "foundations", element: <Foundations /> },
       { path: "characters", element: <Characters /> },
       { path: "dojo", element: <Dojo /> },

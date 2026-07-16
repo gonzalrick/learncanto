@@ -707,7 +707,7 @@ export const ITEMS: DojoItem[] =[
   ["仲要唔要其他嘢?","zung6 jiu3 m4 jiu3 kei4 taa1 je5","Anything else?",3],
   ["唔使喇,埋單唔該。","m4 sai2 laa3, maai4 daan1 m4 goi1","That's all",3],
   ["喺呢度落車,唔該。","hai2 ni1 dou6 lok6 ce1, m4 goi1","Drop me here, please.",3],
-  ["你好,你叫咩名呀?","nei5 hou2, nei5 giu3 me1 meng2 aa3","Hi",3],
+  ["你好,你叫咩名呀?","nei5 hou2, nei5 giu3 me1 meng2 aa3","Hi — what's your name?",3],
   ["喂,今晚得唔得閒?","wai2, gam1 maan5 dak1 m4 dak1 haan4","Hi",3],
   ["不如一齊食飯啦。","bat1 jyu4 jat1 cai4 sik6 faan6 laa1","How about we grab dinner?",3],
   ["如果落雨就唔去","jyu4 gwo2 lok6 jyu5 zau6 m4 heoi3","If it rains, we won't go",3],

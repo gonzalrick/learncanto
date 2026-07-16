@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import type { ReactElement } from "react";
 import { Today } from "./Today";
+import { Search } from "./Search";
 import { Line } from "./Line";
 import { Practice } from "./Practice";
 import { Foundations } from "./Foundations";
@@ -56,6 +58,14 @@ describe("page render smoke tests", () => {
     expect(screen.getByRole("tab", { name: "Listen" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Catch it" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Numbers" })).toBeInTheDocument();
+  });
+
+  it("Search finds a word and offers to play it", async () => {
+    wrap(<Search />);
+    const input = screen.getByPlaceholderText(/try "thank you"/);
+    await userEvent.type(input, "good morning");
+    expect(screen.getByText("早晨")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Hear it" }).length).toBeGreaterThan(0);
   });
 
   it.each(["basics", "beyond", "conversational", "family"])("VocabLesson[%s] renders", (page) => {
