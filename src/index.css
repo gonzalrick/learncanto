@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design tokens — the unified "Hong Kong at night" palette.
+   Exposed to Tailwind utilities (bg-*, text-*, font-*, border-*)
+   AND as plain custom properties for gradients / color-mix in
+   inline styles.
+============================================================ */
+@theme {
+  --color-bg: #0a101d;
+  --color-surface: #131b2e;
+  --color-surface2: #1a2440;
+  --color-raise: #243050;
+  --color-ink: #edf1fa;
+  --color-ink2: #a9b3cc;
+  --color-mut: #5f6b8c;
+  --color-line: #243050;
+  --color-line2: #1d2842;
+  --color-acc: #ff5468;
+  --color-acc2: #ff7a8a;
+  --color-onacc: #1a040b;
+
+  /* zone / line colors */
+  --color-l0: #3faee6;
+  --color-l1: #1fbe79;
+  --color-fam: #e45fab;
+  --color-l15: #9f79e4;
+  --color-l2: #f0993f;
+  --color-dojo: #26c7bf;
+  --color-chars: #ffc14d;
+
+  /* tone colors */
+  --color-t1: #ff6b5e;
+  --color-t2: #ffb43a;
+  --color-t3: #4ed9a2;
+  --color-t4: #57b0ff;
+  --color-t5: #b48cff;
+  --color-t6: #8e9bb8;
+
+  --font-disp: "Archivo Variable", "Inter Variable", system-ui, sans-serif;
+  --font-body: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-hk: "PingFang HK", "PingFang TC", "Hiragino Sans", "Noto Sans HK",
+    "Microsoft JhengHei", sans-serif;
+}
+
+/* Short aliases for inline styles (gradients, color-mix, dynamic zone color) */
+:root {
+  --bg: #0a101d;
+  --surface: #131b2e;
+  --surface2: #1a2440;
+  --raise: #243050;
+  --ink: #edf1fa;
+  --ink2: #a9b3cc;
+  --mut: #5f6b8c;
+  --line: #243050;
+  --line2: #1d2842;
+  --acc: #ff5468;
+  --acc2: #ff7a8a;
+  --on-acc: #1a040b;
+  --l0: #3faee6;
+  --l1: #1fbe79;
+  --fam: #e45fab;
+  --l15: #9f79e4;
+  --l2: #f0993f;
+  --dojo: #26c7bf;
+  --chars: #ffc14d;
+  --t1: #ff6b5e;
+  --t2: #ffb43a;
+  --t3: #4ed9a2;
+  --t4: #57b0ff;
+  --t5: #b48cff;
+  --t6: #8e9bb8;
+  --hk: "PingFang HK", "PingFang TC", "Hiragino Sans", "Noto Sans HK",
+    "Microsoft JhengHei", sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Tone-colored jyutping */
+.tone1 { color: var(--t1); }
+.tone2 { color: var(--t2); }
+.tone3 { color: var(--t3); }
+.tone4 { color: var(--t4); }
+.tone5 { color: var(--t5); }
+.tone6 { color: var(--t6); }
+
+/* ============================================================
+   Shared keyframes / effects ported from the vanilla app
+============================================================ */
+@keyframes ping-ring {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  80%, 100% { transform: scale(1.15); opacity: 0; }
+}
+.ping-ring::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 2px solid var(--zc, var(--acc));
+  opacity: 0.65;
+  animation: ping-ring 1.8s ease-out infinite;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+.animate-shake { animation: shake 0.35s; }
+
+@keyframes spk-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--t4) 55%, transparent); }
+  100% { box-shadow: 0 0 0 26px transparent; }
+}
+.spk-pulse { animation: spk-pulse 0.9s ease; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up { animation: fade-up 0.35s ease; }
+
+/* hide scrollbars on horizontal chip rows / carousels */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

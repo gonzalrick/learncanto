@@ -1,11 +1,34 @@
 {
   "hosting": {
     "target": "live",
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      { "source": "/cantonese-foundations.html", "destination": "/foundations", "type": 301 },
+      { "source": "/cantonese-basics.html", "destination": "/basics", "type": 301 },
+      { "source": "/cantonese-meeting-the-family.html", "destination": "/family", "type": 301 },
+      { "source": "/cantonese-beyond-basics.html", "destination": "/beyond", "type": 301 },
+      { "source": "/cantonese-conversational.html", "destination": "/conversational", "type": 301 },
+      { "source": "/cantonese-listening-dojo.html", "destination": "/dojo", "type": 301 },
+      { "source": "/cantonese-characters.html", "destination": "/characters", "type": 301 }
+    ],
+    "rewrites": [
+      { "source": "/api/translate", "function": "translate" },
+      { "source": "**", "destination": "/index.html" }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css|woff2)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      }
     ]
+  },
+  "functions": {
+    "source": "functions",
+    "ignore": ["node_modules", ".git", "firebase-debug.log", "*.local"]
   }
 }
