@@ -1,55 +1,74 @@
 # Learn Cantonese 學廣東話
 
-A free, step-by-step Cantonese course that takes you from your very first sound to holding a real conversation — right in your browser, no account or download required.
+A free Cantonese learning app built around **one five-minute session a day** — spaced review, a few new words, and ear training, all on a single "learning line". Runs in the browser, installable as a PWA, no account or download required.
 
 **▶ Open the app: [learncanto.web.app](https://learncanto.web.app/)**
 
-It's an installable Progressive Web App (PWA), so you can add it to your phone or desktop and use it offline like a native app.
-
----
-
 ## What it is
 
-Learn Cantonese is six small, focused apps arranged as a learning path. Work through them top to bottom, or jump to whatever you need today. Every word can be played out loud using your device's built-in Cantonese voice, and your progress saves automatically as you go.
+The course is drawn as a metro-style **line**: each lesson is a station, each level a colored zone, "Meeting the Family" an optional interchange branch, and "Learn the Characters" an optional reading branch. Three surfaces:
 
-## The path
+- **Today** — one button builds your daily session: reviews about to fade + new words from your current station + a couple of ear reps.
+- **The Line** — the whole route map; see where you are and jump anywhere.
+- **Practice** — free play: the Listening Dojo, flashcards, quick ear drills, station quizzes.
 
-| Level | Lesson | What you'll learn |
-|-------|--------|-------------------|
-| **L0** | **Foundations** 入門 | The six tones, the sounds, jyutping, and your first building-block words. Begin here. |
+Learning is scheduled with **spaced repetition** (grade *Again / Got it*), and a **daily streak** with a weekly rest-day shield keeps you coming back.
+
+### The path
+
+| Zone | Lesson | What you'll learn |
+|------|--------|-------------------|
+| **L0** | **Foundations** 入門 | The six tones, the sounds, jyutping, and your first building-block words. |
+| — | **Learn the Characters** 認字 | *(optional)* Chinese characters from zero — pictures, then stories, then reading. |
 | **L1** | **Basics** 基礎 | 300+ survival words — greetings, numbers, food, directions, emergencies. |
-| **L1** | **Meeting the Family** 見家長 | Warm, light phrases for meeting your partner's relatives — and exactly what to call everyone. |
-| **L1.5** | **Beyond the Basics** 進階 | Real-situation dialogues, 300 more words, and the grammar that links them into sentences. |
-| **L2** | **Conversational** 講廣東話 | Sentence-final particles, connectors, and patterns that make you actually sound local. |
+| — | **Meeting the Family** 見家長 | *(optional)* Warm phrases for meeting your partner's relatives, and what to call everyone. |
+| **L1.5** | **Beyond the Basics** 進階 | Scenes, grammar, and 300 more words. |
+| **L2** | **Conversational** 講廣東話 | Particles, patterns, and sounding local. |
 
-## Daily practice
+Plus the **Listening Dojo** 聽力訓練 — adjustable-speed ear training that also feeds every daily session.
 
-- **Listening Dojo** 聽力訓練 — Train your ear at adjustable speed with listen & reveal, "what did you hear?", and number drills.
+### Features
 
-## Features
+- 🔊 Tap ▶ anywhere to hear a word in your device's Cantonese voice
+- 🗣️ Tone-colored jyutping on every word
+- 🔁 Spaced-repetition review that brings words back before you forget them
+- 🔥 Daily streak with a weekly rest-day shield
+- 📲 Installable · 📴 works offline · 🆓 free, no sign-up, no tracking
 
-- 🔊 **Hear every word** — tap ▶ anywhere to play native-style audio using your device's built-in Cantonese voice.
-- 🗣️ **Jyutping romanization** — every word and phrase is romanized so you always know how to say it.
-- ✅ **Track your progress** — mark items as they stick and pick up where you left off; progress saves automatically (per device).
-- 📲 **Installable** — add it to your home screen or desktop and launch it like a normal app.
-- 📴 **Works offline** — once loaded, lessons keep working without a connection.
-- 🆓 **Free, no sign-up** — no account, no ads, no tracking. Just open and learn.
+## Tech stack
 
-## How to use it
+- **Vite + React 18 + TypeScript**
+- **Tailwind CSS v4** (design tokens in `src/index.css`)
+- **React Router** (SPA)
+- **Zustand** for state, persisted to `localStorage` (`canto:v2`)
+- **vite-plugin-pwa** (Workbox) for the offline service worker + manifest
+- Self-hosted Latin fonts (Archivo, Inter, IBM Plex Mono); Chinese uses the system font
 
-Tap ▶ anywhere to hear a word, mark things ✓ as they stick, and let your progress save as you go. Audio uses your device's built-in Cantonese voice — phones and Macs tend to do best. Use the floating **Voice** button (bottom-right) to pick the best Cantonese voice on your device.
+## Project layout
 
-**New here?** Start with **Foundations** and don't rush the tones.
+```
+src/
+  data/       typed lesson data (ported from the original data files) + zones.ts registry
+  lib/        srs · streak · session · store (Zustand) · speech · launch
+  components/  Jyutping · Speaker · Tabs · DeckChips · Flashcards · Quiz · SessionOverlay · …
+  pages/      Today · Line · Practice · Foundations · Characters · Dojo · VocabLesson (Basics/Beyond/Conversational/Family)
+```
 
-## Install it as an app
+## Development
 
-- **Android / Chrome:** tap the "Install app" prompt, or menu → Install.
-- **iPhone / iPad (Safari):** Share → Add to Home Screen.
-- **Desktop Chrome / Edge:** click the install icon in the address bar.
+```bash
+npm install
+npm run dev       # dev server at http://localhost:5173
+npm run build     # typecheck + production build to dist/
+npm run preview   # serve the built app
+npm run test      # vitest (logic + component + page smoke tests)
+```
 
-> Install and offline features require the live HTTPS site — visit [learncanto.web.app](https://learncanto.web.app/).
+## Deployment
+
+Firebase Hosting serves `dist/`. Merging to `main` triggers `.github/workflows/firebase-hosting-merge.yml`, which builds and deploys. Old `/cantonese-*.html` URLs 301-redirect to the new clean routes (see `firebase.json`).
 
 ## A note on audio & progress
 
 - Audio uses each device's built-in Cantonese text-to-speech voice. iPhone/Mac and Android tend to sound best.
-- Progress is saved per device in your browser. It persists on the same device but does not sync across devices.
+- Progress is saved per device in the browser (localStorage). It persists on the same device but does not sync across devices.
