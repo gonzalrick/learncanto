@@ -65,6 +65,17 @@ npm run preview   # serve the built app
 npm run test      # vitest (logic + component + page smoke tests)
 ```
 
+### Testing the translate feature locally
+
+Everything except live translation works with plain `npm run dev` (search, jyutping, audio, translation history). To exercise the real `/api/translate` path locally:
+
+1. Put your Anthropic API key in `functions/.secret.local` (gitignored):
+   `ANTHROPIC_API_KEY=sk-ant-...`
+2. In one terminal: `firebase emulators:start --only functions`
+3. In another: `npm run dev` — the vite dev server proxies `/api/translate` to the emulator (see `vite.config.ts`), so the Translate page works end-to-end with hot reload.
+
+For a production-like check of the built app (service worker, hosting rewrites), use `npm run build && firebase emulators:start --only hosting,functions` and open http://localhost:5000.
+
 ## Deployment
 
 Firebase Hosting serves `dist/`, and a Cloud Function in `functions/` serves the `/api/translate` endpoint (English → spoken Cantonese via Claude Haiku; jyutping and audio are derived on-device). Merging to `main` triggers `.github/workflows/firebase-hosting-merge.yml`, which deploys the function first, then hosting. Old `/cantonese-*.html` URLs 301-redirect to the new clean routes (see `firebase.json`).

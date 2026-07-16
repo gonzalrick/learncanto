@@ -51,5 +51,16 @@ export default defineConfig({
       },
     }),
   ],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // Dev-only: forward the translate API to the local Firebase functions
+    // emulator (`firebase emulators:start --only functions`). In production
+    // the same path is a Firebase Hosting rewrite to the deployed function.
+    proxy: {
+      "/api/translate": {
+        target: "http://127.0.0.1:5001",
+        rewrite: () => "/learncanto-500508/us-central1/translate",
+      },
+    },
+  },
 });
