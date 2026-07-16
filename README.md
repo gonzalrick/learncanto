@@ -49,9 +49,10 @@ Plus the **Listening Dojo** 聽力訓練 — adjustable-speed ear training that 
 ```
 src/
   data/       typed lesson data (ported from the original data files) + zones.ts registry
-  lib/        srs · streak · session · store (Zustand) · speech · launch
+  lib/        srs · streak · session · store (Zustand) · speech · launch · dictionary (search) · translate
   components/  Jyutping · Speaker · Tabs · DeckChips · Flashcards · Quiz · SessionOverlay · …
-  pages/      Today · Line · Practice · Foundations · Characters · Dojo · VocabLesson (Basics/Beyond/Conversational/Family)
+  pages/      Today · Line · Practice · Search · Translate · Foundations · Characters · Dojo · VocabLesson (Basics/Beyond/Conversational/Family)
+functions/    Firebase Cloud Function: /api/translate proxy (holds the Anthropic API key)
 ```
 
 ## Development
@@ -66,7 +67,27 @@ npm run test      # vitest (logic + component + page smoke tests)
 
 ## Deployment
 
-Firebase Hosting serves `dist/`. Merging to `main` triggers `.github/workflows/firebase-hosting-merge.yml`, which builds and deploys. Old `/cantonese-*.html` URLs 301-redirect to the new clean routes (see `firebase.json`).
+Firebase Hosting serves `dist/`, and a Cloud Function in `functions/` serves the `/api/translate` endpoint (English → spoken Cantonese via Claude Haiku; jyutping and audio are derived on-device). Merging to `main` triggers `.github/workflows/firebase-hosting-merge.yml`, which deploys the function first, then hosting. Old `/cantonese-*.html` URLs 301-redirect to the new clean routes (see `firebase.json`).
+
+### One-time setup (browser consoles only, no CLI)
+
+The translate function needs four things set up once. Everything below is point-and-click.
+
+**1. Upgrade to the Blaze plan** *(required for Cloud Functions; the free allowance covers this app's usage)*
+[Firebase console](https://console.firebase.google.com/project/learncanto-500508/usage/details) → ⚙️ next to Project Overview → **Usage and billing** → **Modify plan** → Blaze.
+
+**2. Enable the Cloud APIs the first deploy needs**
+In the [Google Cloud console API library](https://console.cloud.google.com/apis/library?project=learncanto-500508), search for and **Enable** each of: **Cloud Functions API**, **Cloud Build API**, **Artifact Registry API**, **Cloud Run Admin API**.
+
+**3. Create the Anthropic API key secret and let the function read it**
+- Create the key at [console.anthropic.com](https://console.anthropic.com/) (API Keys). While there, set a monthly **spend limit** (e.g. $5) under Billing → Limits.
+- [Google Cloud console → Security → Secret Manager](https://console.cloud.google.com/security/secret-manager?project=learncanto-500508) → **Create secret** → name it exactly `ANTHROPIC_API_KEY`, paste the key as the value, leave everything else default.
+- Open the new secret → **Permissions** tab → **Grant access** → principal `PROJECT_NUMBER-compute@developer.gserviceaccount.com` (the function's runtime account — find the project number in Firebase console → Project settings → General) → role **Secret Manager Secret Accessor**.
+
+**4. Let the GitHub Actions service account deploy functions**
+The deploy workflow reuses the service account Firebase created for hosting deploys (the `FIREBASE_SERVICE_ACCOUNT_LEARNCANTO_500508` repo secret). In [Google Cloud console → IAM](https://console.cloud.google.com/iam-admin/iam?project=learncanto-500508), find the principal named like `github-action-…@learncanto-500508.iam.gserviceaccount.com` → ✏️ **Edit principal** → add four roles: **Cloud Functions Developer**, **Service Account User**, **Secret Manager Viewer**, **Service Usage Consumer**.
+
+After that, every merge to `main` ships web + function together. If a functions deploy ever fails with a permission error, the message names the missing permission — add the matching role to the same principal in the IAM page. The Anthropic key is never in the repo, the workflow, or the PWA bundle; it lives only in Secret Manager.
 
 ## A note on audio & progress
 

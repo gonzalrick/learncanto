@@ -12,7 +12,10 @@
       { "source": "/cantonese-listening-dojo.html", "destination": "/dojo", "type": 301 },
       { "source": "/cantonese-characters.html", "destination": "/characters", "type": 301 }
     ],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "rewrites": [
+      { "source": "/api/translate", "function": "translate" },
+      { "source": "**", "destination": "/index.html" }
+    ],
     "headers": [
       {
         "source": "**/*.@(js|css|woff2)",
@@ -23,5 +26,9 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
       }
     ]
+  },
+  "functions": {
+    "source": "functions",
+    "ignore": ["node_modules", ".git", "firebase-debug.log", "*.local"]
   }
 }

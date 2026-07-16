@@ -101,6 +101,13 @@ export const IconSearch = (p: P) => (
     <path d="m20 20-4.2-4.2" />
   </svg>
 );
+export const IconGlobe = (p: P) => (
+  <svg viewBox="0 0 24 24" {...stroke} strokeWidth={2} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <path d="M12 3c3 3.6 3 14.4 0 18c-3-3.6-3-14.4 0-18z" />
+  </svg>
+);
 export const IconReplay = (p: P) => (
   <svg viewBox="0 0 24 24" {...stroke} strokeWidth={2.2} {...p}>
     <path d="M1 4v6h6M3.5 15a9 9 0 1 0 2.1-9.4L1 10" />

@@ -5,6 +5,9 @@ import { MemoryRouter } from "react-router-dom";
 import type { ReactElement } from "react";
 import { Today } from "./Today";
 import { Search } from "./Search";
+import { Translate } from "./Translate";
+import { clearTranslations } from "../lib/translate";
+import { vi } from "vitest";
 import { Line } from "./Line";
 import { Practice } from "./Practice";
 import { Foundations } from "./Foundations";
@@ -66,6 +69,27 @@ describe("page render smoke tests", () => {
     await userEvent.type(input, "good morning");
     expect(screen.getByText("早晨")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Hear it" }).length).toBeGreaterThan(0);
+  });
+
+  it("Translate calls the API and shows han + jyutping + play button", async () => {
+    clearTranslations();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => ({ han: "我識講少少廣東話" }) })),
+    );
+    try {
+      wrap(<Translate />);
+      const input = screen.getByPlaceholderText(/An English sentence/);
+      await userEvent.type(input, "I can speak a little Cantonese");
+      await userEvent.click(screen.getByRole("button", { name: "Translate" }));
+      // appears in both the result card and the offline history list
+      expect((await screen.findAllByText("我識講少少廣東話")).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/ngo5/).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole("button", { name: "Hear it" }).length).toBeGreaterThan(0);
+    } finally {
+      vi.unstubAllGlobals();
+      clearTranslations();
+    }
   });
 
   it.each(["basics", "beyond", "conversational", "family"])("VocabLesson[%s] renders", (page) => {

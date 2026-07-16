@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { DICTIONARY, searchDictionary } from "../lib/dictionary";
 import { Jyutping } from "../components/Jyutping";
 import { Speaker } from "../components/Speaker";
@@ -55,7 +56,11 @@ export function Search() {
       ) : results.length === 0 ? (
         <p className="mt-4 px-1 text-[12.5px] leading-[1.7] text-mut">
           No matches for “{query}”. Try a shorter or simpler word — this dictionary only knows
-          what the course teaches.
+          what the course teaches. Or{" "}
+          <Link to={"/translate?q=" + encodeURIComponent(query)} className="text-acc2 underline">
+            translate it with AI
+          </Link>
+          .
         </p>
       ) : (
         <>

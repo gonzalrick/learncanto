@@ -1,14 +1,15 @@
 import { NavLink } from "react-router-dom";
-import { IconHome, IconLine, IconPractice, IconSearch } from "./icons";
+import { IconHome, IconLine, IconPractice, IconSearch, IconGlobe } from "./icons";
 
 const items = [
   { to: "/", label: "Today", Icon: IconHome, end: true },
   { to: "/line", label: "Line", Icon: IconLine, end: false },
   { to: "/practice", label: "Practice", Icon: IconPractice, end: false },
   { to: "/search", label: "Search", Icon: IconSearch, end: false },
+  { to: "/translate", label: "Translate", Icon: IconGlobe, end: false },
 ];
 
-/** Fixed bottom navigation — Today / Line / Practice / Search. */
+/** Fixed bottom navigation — Today / Line / Practice / Search / Translate. */
 export function BottomNav() {
   return (
     <nav
