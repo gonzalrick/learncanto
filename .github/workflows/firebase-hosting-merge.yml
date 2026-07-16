@@ -16,6 +16,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: cd functions && npm ci
       - run: npm run build
       # Functions first, so the /api/translate rewrite always has a live target
       - name: Deploy Cloud Functions (translate API)
