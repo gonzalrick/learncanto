@@ -91,16 +91,25 @@ export function Quiz({ pool, accent }: { pool: Card[]; accent: string }) {
         })}
       </div>
       {answered && (
-        <button
-          onClick={() => {
-            setIdx(idx + 1);
-            setPicked(null);
+        // Sticky so it stays reachable without scrolling past the options.
+        <div
+          className="sticky z-10 -mx-5 mt-3.5 px-5 pb-2 pt-3"
+          style={{
+            bottom: "calc(76px + env(safe-area-inset-bottom))",
+            background: "linear-gradient(to top, var(--bg) 68%, transparent)",
           }}
-          className="mt-3.5 w-full rounded-[13px] py-[15px] font-disp text-[15px] font-bold text-bg"
-          style={{ background: accent }}
         >
-          {idx + 1 >= questions.length ? "See score" : "Next →"}
-        </button>
+          <button
+            onClick={() => {
+              setIdx(idx + 1);
+              setPicked(null);
+            }}
+            className="w-full rounded-[13px] py-[15px] font-disp text-[15px] font-bold text-bg"
+            style={{ background: accent }}
+          >
+            {idx + 1 >= questions.length ? "See score" : "Next →"}
+          </button>
+        </div>
       )}
     </div>
   );

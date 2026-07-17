@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import type { VocabWord } from "../data/zones";
-import type { EarItem } from "./session";
+import type { CharItem, EarItem } from "./session";
 
 export type SessionItem =
   | { t: "recall"; id: string; w: VocabWord; graded?: boolean }
   | { t: "new"; id: string; w: VocabWord; stTitle: string }
-  | { t: "listen"; e: EarItem };
+  | { t: "listen"; e: EarItem }
+  | { t: "char"; c: CharItem };
 
 interface SessionStore {
   active: boolean;

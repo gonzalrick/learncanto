@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { SessionOverlay } from "./SessionOverlay";
 import { useSession } from "../lib/session-store";
@@ -27,6 +27,10 @@ describe("SessionOverlay — quick ear drill", () => {
     useSession.getState().close();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("renders the first ear card immediately on open (no crash on empty first frame)", () => {
     render(<SessionOverlay />);
     // opening a drill must not throw and must show the prompt + options
@@ -42,6 +46,7 @@ describe("SessionOverlay — quick ear drill", () => {
   });
 
   it("advances through all reps to the done screen when answered correctly", () => {
+    vi.useFakeTimers();
     render(<SessionOverlay />);
     act(() =>
       useSession.getState().start(
@@ -49,12 +54,55 @@ describe("SessionOverlay — quick ear drill", () => {
         "drill",
       ),
     );
-    fireEvent.click(screen.getByRole("button", { name: "meaning-0" }));
-    fireEvent.click(screen.getByRole("button", { name: "meaning-1" }));
-    fireEvent.click(screen.getByRole("button", { name: "meaning-2" }));
+    for (const name of ["meaning-0", "meaning-1", "meaning-2"]) {
+      fireEvent.click(screen.getByRole("button", { name }));
+      act(() => vi.advanceTimersByTime(750));
+    }
     expect(screen.getByText("Nice drill")).toBeInTheDocument();
     // a drill does not advance the streak
     expect(useStore.getState().days.streak).toBe(0);
+  });
+
+  it("holds the correct answer on screen before advancing", () => {
+    vi.useFakeTimers();
+    render(<SessionOverlay />);
+    act(() =>
+      useSession.getState().start(
+        drill(2).map((e) => ({ t: "listen" as const, e })),
+        "drill",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "meaning-0" }));
+    // still on the first card, with the picked answer flagged correct
+    act(() => vi.advanceTimersByTime(300));
+    const picked = screen.getByRole("button", { name: "meaning-0" });
+    expect(picked).toBeDisabled();
+    expect(picked.className).toContain("border-t3");
+    // ...then it moves on
+    act(() => vi.advanceTimersByTime(450));
+    expect(screen.getByRole("button", { name: "meaning-1" })).toBeInTheDocument();
+  });
+
+  it("renders a character card and advances after the correct meaning", () => {
+    vi.useFakeTimers();
+    render(<SessionOverlay />);
+    act(() =>
+      useSession.getState().start(
+        [
+          { t: "char", c: { han: "明", jp: "ming4", en: "bright", opts: ["woods", "bright", "to rest"], ok: 1 } },
+          { t: "char", c: { han: "山", jp: "saan1", en: "mountain", opts: ["mountain", "fire", "water"], ok: 0 } },
+        ],
+        "drill",
+      ),
+    );
+    expect(screen.getByText("明")).toBeInTheDocument();
+    expect(screen.getByText(/what does it mean/)).toBeInTheDocument();
+    // a wrong pick keeps the card up; the right one moves on after the beat
+    fireEvent.click(screen.getByRole("button", { name: "woods" }));
+    expect(screen.getByText("明")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "bright" }));
+    act(() => vi.advanceTimersByTime(750));
+    expect(screen.getByText("山")).toBeInTheDocument();
   });
 
   it("startEarDrill() opens a 6-rep listen session from real Dojo data", () => {

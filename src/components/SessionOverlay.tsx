@@ -4,10 +4,11 @@ import { useStore } from "../lib/store";
 import { srsDueOn, todayNum } from "../lib/srs";
 import { dstr } from "../lib/streak";
 import { speak, cancelSpeech } from "../lib/speech";
+import { ding } from "../lib/sfx";
 import { Jyutping } from "./Jyutping";
 import { IconX, IconSpeaker, IconPlay } from "./icons";
 
-type Stats = { rev: number; fresh: number; ear: number };
+type Stats = { rev: number; fresh: number; ear: number; char: number };
 
 /** Thin wrapper: mounts a fresh SessionRunner (keyed by runId) whenever a
     session opens, so the runner initializes its queue synchronously. */
@@ -38,7 +39,7 @@ function SessionRunner({
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [done, setDone] = useState(false);
-  const stats = useRef<Stats>({ rev: 0, fresh: 0, ear: 0 });
+  const stats = useRef<Stats>({ rev: 0, fresh: 0, ear: 0, char: 0 });
   const doneInfo = useRef<{ prevStreak: number; newStreak: number; hadToday: boolean; dueTomorrow: number } | null>(null);
 
   // Browser/hardware back closes the session.
@@ -76,7 +77,7 @@ function SessionRunner({
   };
 
   const it = queue[pos];
-  const totalStrength = stats.current.rev + stats.current.fresh + stats.current.ear;
+  const totalStrength = stats.current.rev + stats.current.fresh + stats.current.ear + stats.current.char;
   if (!done && !it) return null; // empty queue guard (shouldn't happen for real sessions)
 
   return (
@@ -146,12 +147,21 @@ function SessionRunner({
               advance();
             }}
           />
-        ) : (
+        ) : it.t === "listen" ? (
           <ListenCard
             key={pos}
             item={it}
             onCorrect={() => {
               stats.current.ear++;
+              advance();
+            }}
+          />
+        ) : (
+          <CharCard
+            key={pos}
+            item={it}
+            onCorrect={() => {
+              stats.current.char++;
               advance();
             }}
           />
@@ -171,9 +181,13 @@ const tagFor = (it: SessionItem) =>
       <span className="text-t3">New word</span>
       {it.stTitle ? " — from " + it.stTitle : ""}
     </>
-  ) : (
+  ) : it.t === "listen" ? (
     <>
       <span className="text-t4">Ear rep</span> — what did you hear?
+    </>
+  ) : (
+    <>
+      <span className="text-chars">Character</span> — what does it mean?
     </>
   );
 
@@ -292,7 +306,6 @@ function NewCard({ item, onNext }: { item: Extract<SessionItem, { t: "new" }>; o
 
 function ListenCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "listen" }>; onCorrect: () => void }) {
   const e = item.e;
-  const [wrong, setWrong] = useState<Set<number>>(new Set());
   const playRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const t = setTimeout(() => {
@@ -322,32 +335,78 @@ function ListenCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "list
           <Jyutping jp={e.jp} className="font-mono text-[15px]" />
         </div>
         <div className="mt-2.5 text-xs text-mut">Listen while you read it — then tap what it means.</div>
-        <div className="mt-[18px] flex w-full flex-col gap-2.5">
-          {e.opts.map((o, i) => {
-            const isRight = i === e.ok;
-            return (
-              <button
-                key={i}
-                disabled={wrong.has(i)}
-                onClick={() => {
-                  if (isRight) onCorrect();
-                  else setWrong((w) => new Set(w).add(i));
-                }}
-                className={
-                  "rounded-[14px] border-[1.5px] py-[13px] text-[15px] " +
-                  (wrong.has(i)
-                    ? "animate-shake border-t1 text-t1"
-                    : "border-line bg-surface2 text-ink")
-                }
-                style={wrong.has(i) ? { background: "color-mix(in srgb, var(--t1) 14%, var(--surface2))" } : undefined}
-              >
-                {o.en}
-              </button>
-            );
-          })}
-        </div>
+        <Choices opts={e.opts.map((o) => o.en)} ok={e.ok} onCorrect={onCorrect} />
       </div>
     </>
+  );
+}
+
+function CharCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "char" }>; onCorrect: () => void }) {
+  const c = item.c;
+  return (
+    <>
+      <div className={tagBase}>{tagFor(item)}</div>
+      <div className={cardBase}>
+        <button
+          aria-label="Hear it"
+          onClick={(ev) => {
+            pulse(ev.currentTarget);
+            speak(c.han);
+          }}
+          className="font-hk text-[clamp(46px,14vw,76px)] font-semibold leading-[1.1]"
+        >
+          {c.han}
+        </button>
+        <Jyutping jp={c.jp} className="mt-2 font-mono text-lg" />
+        <div className="mt-2.5 text-xs text-mut">Tap the character to hear it — then tap what it means.</div>
+        <Choices opts={c.opts} ok={c.ok} onCorrect={onCorrect} />
+      </div>
+    </>
+  );
+}
+
+/** Multiple-choice answers: a right pick flashes green + chimes, then advances
+    after a beat so the correct answer registers before the card changes. */
+function Choices({ opts, ok, onCorrect }: { opts: string[]; ok: number; onCorrect: () => void }) {
+  const [wrong, setWrong] = useState<Set<number>>(new Set());
+  const [right, setRight] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return (
+    <div className="mt-[18px] flex w-full flex-col gap-2.5">
+      {opts.map((o, i) => {
+        const hit = right && i === ok;
+        return (
+          <button
+            key={i}
+            disabled={right || wrong.has(i)}
+            onClick={() => {
+              if (i !== ok) return setWrong((w) => new Set(w).add(i));
+              setRight(true);
+              ding();
+              timer.current = setTimeout(onCorrect, 750);
+            }}
+            className={
+              "rounded-[14px] border-[1.5px] py-[13px] text-[15px] transition-colors " +
+              (hit
+                ? "border-t3 font-semibold text-t3"
+                : wrong.has(i)
+                  ? "animate-shake border-t1 text-t1"
+                  : "border-line bg-surface2 text-ink")
+            }
+            style={
+              hit
+                ? { background: "color-mix(in srgb, var(--t3) 20%, var(--surface2))" }
+                : wrong.has(i)
+                  ? { background: "color-mix(in srgb, var(--t1) 14%, var(--surface2))" }
+                  : undefined
+            }
+          >
+            {o}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

@@ -28,7 +28,7 @@ export function Today() {
     h < 5 ? "夜瞓喇 — night owl" : h < 12 ? "早晨 — good morning" : h < 18 ? "午安 — good afternoon" : "晚上好 — good evening";
 
   const plan = sessionPlan(srs, known);
-  const count = plan.reviews.length + plan.fresh.length + plan.ears.length;
+  const count = plan.reviews.length + plan.fresh.length + plan.ears.length + plan.chars.length;
   const mins = Math.max(2, Math.round(count * 0.6));
   const dueN = srsDue(srs).length;
 
@@ -94,6 +94,14 @@ export function Today() {
                 {plan.ears.length} ear rep{plan.ears.length > 1 ? "s" : ""}
               </b>{" "}
               — what did you hear?
+            </Row>
+          )}
+          {plan.chars.length > 0 && (
+            <Row color="var(--chars)">
+              <b className="font-semibold text-ink">
+                {plan.chars.length} character{plan.chars.length > 1 ? "s" : ""}
+              </b>{" "}
+              — what does it mean?
             </Row>
           )}
         </div>

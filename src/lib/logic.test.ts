@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import type { Days, KnownMap, Srs } from "./state-types";
 import { srsSeed, srsDue, srsDueOn, srsGrade, srsIntroduce, todayNum, hashStr } from "./srs";
 import { logToday, dstr } from "./streak";
-import { sessionPlan, earItems } from "./session";
+import { sessionPlan, earItems, charItems } from "./session";
 import { ZONES, VOCAB, currentStation, stationDone } from "../data/zones";
 
 const t = todayNum();
@@ -28,7 +28,7 @@ describe("registry", () => {
 });
 
 describe("fresh-user session plan", () => {
-  it("is 0 reviews / 5 new / 5 ears, new words from 'blocks'", () => {
+  it("is 0 reviews / 5 new / 5 ears / 5 chars, new words from 'blocks'", () => {
     const srs: Srs = {};
     const known: KnownMap = {};
     const plan = sessionPlan(srs, known, t);
@@ -36,6 +36,7 @@ describe("fresh-user session plan", () => {
     expect(plan.fresh.length).toBe(5);
     expect(plan.fresh[0].st.id).toBe("blocks");
     expect(plan.ears.length).toBe(5);
+    expect(plan.chars.length).toBe(5);
     expect(currentStation(known).id).toBe("how");
   });
 });
@@ -49,6 +50,22 @@ describe("ear items", () => {
       expect(e.opts[e.ok].han).toBe(e.han);
       expect(new Set(e.opts.map((o) => o.en)).size).toBe(3);
     }
+  });
+});
+
+describe("char items", () => {
+  it("carry a real character, correct meaning at ok, no dup meanings", () => {
+    const chars = charItems(5);
+    expect(chars.length).toBe(5);
+    for (const c of chars) {
+      expect(c.han).toBeTruthy();
+      expect(c.jp).toBeTruthy();
+      expect(c.opts.length).toBe(3);
+      expect(c.opts[c.ok]).toBe(c.en);
+      expect(new Set(c.opts).size).toBe(3);
+    }
+    // distinct characters within one session
+    expect(new Set(chars.map((c) => c.han)).size).toBe(5);
   });
 });
 

@@ -18,12 +18,24 @@ export function LearnList({
 }) {
   const known = useStore((s) => s.known);
   const setKnown = useStore((s) => s.setKnown);
+  const setDeckKnown = useStore((s) => s.setDeckKnown);
   const km = known[ns] || {};
   const done = cards.reduce((n, _c, i) => n + (km[keyPrefix + i] ? 1 : 0), 0);
+  const allDone = done === cards.length;
 
   return (
     <div>
       <ProgressBar done={done} total={cards.length} accent={accent} label="learned" />
+      <button
+        onClick={() => setDeckKnown(ns, cards.map((_c, i) => keyPrefix + i), !allDone)}
+        className={
+          "mb-3.5 w-full rounded-[13px] py-3 font-disp text-[13.5px] font-bold " +
+          (allDone ? "bg-surface2 text-ink2" : "text-bg")
+        }
+        style={allDone ? undefined : { background: accent }}
+      >
+        {allDone ? "✓ All learned — tap to clear" : "Mark all learned"}
+      </button>
       <div className="flex flex-col gap-[9px]">
         {cards.map((c, i) => {
           const [han, jp, en, note] = c;

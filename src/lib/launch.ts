@@ -12,6 +12,7 @@ export function startRun() {
   plan.reviews.forEach((id) => items.push({ t: "recall", id, w: VOCAB[id].w }));
   plan.fresh.forEach((f) => items.push({ t: "new", id: f.id, w: f.w, stTitle: f.st.title }));
   plan.ears.forEach((e) => items.push({ t: "listen", e }));
+  plan.chars.forEach((c) => items.push({ t: "char", c }));
   if (!items.length) earItems(4).forEach((e) => items.push({ t: "listen", e }));
   useSession.getState().start(items, "run");
 }
