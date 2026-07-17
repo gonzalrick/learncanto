@@ -9,6 +9,7 @@ import { DECKS as BASICS } from "./basics";
 import { KIN, DECKS as FAMILY } from "./family";
 import { DECKS as BEYOND } from "./beyond";
 import { DECKS as CONV } from "./conv";
+import { DECKS as TOURIST } from "./tourist";
 
 export interface VocabWord {
   han: string;
@@ -115,6 +116,17 @@ ZONES.push({
   route: "/family", ns: "family", elective: true,
   blabel: "Interchange — side trip · ride any time",
   stations: famStations,
+});
+
+// Day trip — Hong Kong survival (elective side trip)
+ZONES.push({
+  id: "tourist", pill: "Day trip", name: "Hong Kong Survival", hk: "遊香港", cv: "var(--tourist)",
+  route: "/tourist", ns: "tourist", elective: true,
+  blabel: "Tourist line — ride it the day you land",
+  stations: TOURIST.map((d) => ({
+    id: d.id, title: d.name, sub: d.han + " · " + d.cards.length + " phrases",
+    total: d.cards.length, ns: "tourist", kp: d.id + ":", vocab: words(d.cards, d.id + ":"),
+  })),
 });
 
 // L1.5 — beyond decks

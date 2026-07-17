@@ -113,6 +113,14 @@ export const IconReplay = (p: P) => (
     <path d="M1 4v6h6M3.5 15a9 9 0 1 0 2.1-9.4L1 10" />
   </svg>
 );
+export const IconShow = (p: P) => (
+  <svg viewBox="0 0 24 24" {...stroke} strokeWidth={2.2} {...p}>
+    <path d="M9 3H4.5A1.5 1.5 0 0 0 3 4.5V9" />
+    <path d="M15 3h4.5A1.5 1.5 0 0 1 21 4.5V9" />
+    <path d="M9 21H4.5A1.5 1.5 0 0 1 3 19.5V15" />
+    <path d="M15 21h4.5a1.5 1.5 0 0 0 1.5-1.5V15" />
+  </svg>
+);
 export const IconSlow = (p: P) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...p}>
     <path d="M11 5v14l-9-7zM22 5v14l-9-7z" />

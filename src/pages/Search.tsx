@@ -1,14 +1,27 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { DICTIONARY, searchDictionary } from "../lib/dictionary";
+import { DICTIONARY, searchDictionary, bareHan } from "../lib/dictionary";
+import type { DictEntry } from "../lib/dictionary";
 import { Jyutping } from "../components/Jyutping";
 import { Speaker } from "../components/Speaker";
+import { ShowCard } from "../components/ShowCard";
+import { WildCatch } from "../components/WildCatch";
 import { IconSearch, IconX } from "../components/icons";
+
+/** CJK incl. Extension A, where HK particles like 㗎 live. */
+const HAS_HAN = /[㐀-鿿]/;
 
 export function Search() {
   const [q, setQ] = useState("");
+  const [show, setShow] = useState<DictEntry | null>(null);
   const results = useMemo(() => searchDictionary(q), [q]);
   const query = q.trim();
+  // Chinese in the box means they're reading something in front of them, not
+  // studying — offer to catch it, unless the course already teaches that exact
+  // phrase, in which case the result below already answers them. Compared bare,
+  // because text off a menu won't carry the commas the course writes.
+  const caught =
+    HAS_HAN.test(query) && bareHan(results[0]?.han ?? "") !== bareHan(query);
 
   return (
     <div>
@@ -47,6 +60,8 @@ export function Search() {
         )}
       </div>
 
+      {caught && <WildCatch key={query} han={query} />}
+
       {query === "" ? (
         <p className="mt-4 px-1 text-[12.5px] leading-[1.7] text-mut">
           Look up anything the course teaches — type English (<i>water</i>, <i>thank you</i>,{" "}
@@ -54,14 +69,16 @@ export function Search() {
           spelling is fine. Tap the speaker to hear it.
         </p>
       ) : results.length === 0 ? (
-        <p className="mt-4 px-1 text-[12.5px] leading-[1.7] text-mut">
-          No matches for “{query}”. Try a shorter or simpler word — this dictionary only knows
-          what the course teaches. Or{" "}
-          <Link to={"/translate?q=" + encodeURIComponent(query)} className="text-acc2 underline">
-            translate it with AI
-          </Link>
-          .
-        </p>
+        caught ? null : (
+          <p className="mt-4 px-1 text-[12.5px] leading-[1.7] text-mut">
+            No matches for “{query}”. Try a shorter or simpler word — this dictionary only knows
+            what the course teaches. Or{" "}
+            <Link to={"/translate?q=" + encodeURIComponent(query)} className="text-acc2 underline">
+              translate it with AI
+            </Link>
+            .
+          </p>
+        )
       ) : (
         <>
           <div className="mt-4 px-1 font-mono text-[10.5px] uppercase tracking-[.15em] text-mut">
@@ -71,7 +88,13 @@ export function Search() {
             <div key={e.han} className="mt-3 flex items-center gap-3.5 rounded-[20px] border border-line2 bg-surface p-4">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                  <span className="font-hk text-[21px] leading-tight">{e.han}</span>
+                  <button
+                    onClick={() => setShow(e)}
+                    aria-label={`Show ${e.en} full screen`}
+                    className="text-left font-hk text-[21px] leading-tight"
+                  >
+                    {e.han}
+                  </button>
                   <Jyutping jp={e.jp} className="font-mono text-xs" />
                 </div>
                 <div className="mt-1 text-[13.5px] text-ink2">{e.en}</div>
@@ -84,6 +107,10 @@ export function Search() {
             </div>
           ))}
         </>
+      )}
+
+      {show && (
+        <ShowCard han={show.han} jp={show.jp} en={show.en} onClose={() => setShow(null)} />
       )}
     </div>
   );

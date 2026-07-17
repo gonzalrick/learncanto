@@ -1,11 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../lib/store";
 import { sessionPlan } from "../lib/session";
 import { srsDue } from "../lib/srs";
 import { dstr } from "../lib/streak";
 import { startRun, startCards } from "../lib/launch";
+import { touristSlot, slotDeck, slotPhrases } from "../lib/context";
+import type { Card } from "../data/types";
 import { currentStation, stationDone, ZONE_OF_STATION } from "../data/zones";
+import { Jyutping } from "../components/Jyutping";
+import { Speaker } from "../components/Speaker";
+import { ShowCard } from "../components/ShowCard";
 import { IconFlame, IconShield, IconCheck, IconChevronRight, IconPractice, IconCards } from "../components/icons";
 
 const WD = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -28,7 +33,8 @@ export function Today() {
     h < 5 ? "夜瞓喇 — night owl" : h < 12 ? "早晨 — good morning" : h < 18 ? "午安 — good afternoon" : "晚上好 — good evening";
 
   const plan = sessionPlan(srs, known);
-  const count = plan.reviews.length + plan.fresh.length + plan.ears.length + plan.chars.length;
+  const count =
+    plan.reviews.length + plan.fresh.length + plan.ears.length + plan.chars.length + plan.nums.length;
   const mins = Math.max(2, Math.round(count * 0.6));
   const dueN = srsDue(srs).length;
 
@@ -96,6 +102,14 @@ export function Today() {
               — what did you hear?
             </Row>
           )}
+          {plan.nums.length > 0 && (
+            <Row color="var(--dojo)">
+              <b className="font-semibold text-ink">
+                {plan.nums.length} number rep{plan.nums.length > 1 ? "s" : ""}
+              </b>{" "}
+              — catch the price
+            </Row>
+          )}
           {plan.chars.length > 0 && (
             <Row color="var(--chars)">
               <b className="font-semibold text-ink">
@@ -160,6 +174,8 @@ export function Today() {
         })}
       </div>
 
+      <RightNow hour={h} />
+
       {/* next stop */}
       <Link
         to={zone.route}
@@ -206,6 +222,55 @@ export function Today() {
         <br />
         <span className="font-hk text-acc2">慢慢嚟</span> · take it slow, come back tomorrow.
       </footer>
+    </div>
+  );
+}
+
+/** The tourist deck that matches the hour, with three of its phrases ready to
+    play or hand over. Deliberately quieter than the session card above it —
+    this is a shortcut, not the thing you came to do. */
+function RightNow({ hour }: { hour: number }) {
+  const [show, setShow] = useState<Card | null>(null);
+  const slot = touristSlot(hour);
+  const deck = slotDeck(slot);
+  const phrases = slotPhrases(deck, dstr(0));
+
+  return (
+    <div className="mt-[15px] rounded-[20px] border border-line2 bg-surface p-[15px_15px_11px]">
+      <div className="mb-2.5 px-0.5">
+        <div className="font-mono text-[9.5px] uppercase tracking-[.16em] text-mut">
+          Right now · <span style={{ color: "var(--tourist)" }}>{slot.label}</span>{" "}
+          <span className="font-hk tracking-[.05em]">{slot.hk}</span>
+        </div>
+        <div className="mt-1 text-[11px] text-mut">{slot.blurb}</div>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        {phrases.map((c) => (
+          <div key={c[0]} className="flex items-center gap-2.5 rounded-[13px] px-1 py-1.5">
+            <button
+              onClick={() => setShow(c)}
+              className="min-w-0 flex-1 text-left"
+              aria-label={`Show ${c[2]} full screen`}
+            >
+              <span className="block font-hk text-[17px] leading-snug">{c[0]}</span>
+              <Jyutping jp={c[1]} className="font-mono text-[10.5px]" />
+              <span className="mt-px block text-[11.5px] text-ink2">{c[2]}</span>
+            </button>
+            <Speaker text={c[0]} className="h-[34px] w-[34px] shrink-0" />
+          </div>
+        ))}
+      </div>
+
+      <Link
+        to="/tourist"
+        className="mt-1.5 flex items-center justify-between rounded-[11px] px-1 py-2 font-mono text-[10px] uppercase tracking-[.14em] text-mut"
+      >
+        All {deck.name.toLowerCase()} phrases
+        <IconChevronRight className="h-3.5 w-3.5" />
+      </Link>
+
+      {show && <ShowCard han={show[0]} jp={show[1]} en={show[2]} onClose={() => setShow(null)} />}
     </div>
   );
 }

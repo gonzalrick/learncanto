@@ -6,8 +6,12 @@ import {
   clearTranslations,
   type Translation,
 } from "../lib/translate";
+import { useStore } from "../lib/store";
+import { wildId } from "../lib/vocab-lookup";
 import { Jyutping } from "../components/Jyutping";
 import { Speaker } from "../components/Speaker";
+import { ShowCard, ShowButton } from "../components/ShowCard";
+import { IconCheck } from "../components/icons";
 
 export function Translate() {
   const [params] = useSearchParams();
@@ -15,7 +19,12 @@ export function Translate() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Translation | null>(null);
+  const [show, setShow] = useState<Translation | null>(null);
   const [history, setHistory] = useState<Translation[]>(recentTranslations);
+  const wild = useStore((s) => s.wild);
+  const srs = useStore((s) => s.srs);
+  const addWild = useStore((s) => s.addWild);
+  const kept = !!result && (wild.some((w) => w.han === result.han) || !!srs[wildId(result.han)]);
 
   async function go(input?: string) {
     const q = (input ?? text).trim();
@@ -84,11 +93,28 @@ export function Translate() {
               <div className="font-hk text-[24px] leading-snug">{result.han}</div>
               <Jyutping jp={result.jp} className="mt-1 block font-mono text-[12.5px]" />
             </div>
-            <Speaker text={result.han} className="h-[44px] w-[44px] shrink-0" />
+            <div className="flex shrink-0 gap-2">
+              <ShowButton onClick={() => setShow(result)} className="h-[44px] w-[44px]" />
+              <Speaker text={result.han} className="h-[44px] w-[44px]" />
+            </div>
           </div>
           <div className="mt-2.5 font-mono text-[9.5px] uppercase tracking-[.12em] text-mut">
             Machine translated · check tones by ear
           </div>
+          {kept ? (
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-[13px] border border-line2 py-2.5 font-disp text-[12.5px] font-semibold text-t3">
+              <IconCheck className="h-3.5 w-3.5" />
+              Saved — it's in tomorrow's reviews
+            </div>
+          ) : (
+            <button
+              onClick={() => addWild({ han: result.han, jp: result.jp, en: result.en, nt: "" })}
+              className="mt-3 w-full rounded-[13px] py-2.5 font-disp text-[12.5px] font-bold text-bg"
+              style={{ background: "var(--tourist)" }}
+            >
+              Save to my words
+            </button>
+          )}
         </div>
       )}
 
@@ -135,6 +161,10 @@ export function Translate() {
             </button>
           ))}
         </>
+      )}
+
+      {show && (
+        <ShowCard han={show.han} jp={show.jp} en={show.en} onClose={() => setShow(null)} />
       )}
     </div>
   );

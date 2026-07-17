@@ -746,6 +746,15 @@ export const NUMS: DojoNum[] =[
   {han:"三百蚊",jp:"saam1 baak3 man1",a:"$300",t:"price"},
   {han:"五百蚊",jp:"ng5 baak3 man1",a:"$500",t:"price"},
   {han:"一千蚊",jp:"jat1 cin1 man1",a:"$1000",t:"price"},
+  // real cha chaan teng / market / taxi damage
+  {han:"二十二蚊",jp:"ji6 sap6 ji6 man1",a:"$22",t:"price"},
+  {han:"三十八蚊",jp:"saam1 sap6 baat3 man1",a:"$38",t:"price"},
+  {han:"四十五蚊",jp:"sei3 sap6 ng5 man1",a:"$45",t:"price"},
+  {han:"六十蚊",jp:"luk6 sap6 man1",a:"$60",t:"price"},
+  {han:"八十八蚊",jp:"baat3 sap6 baat3 man1",a:"$88",t:"price"},
+  {han:"一百三十蚊",jp:"jat1 baak3 saam1 sap6 man1",a:"$130",t:"price"},
+  {han:"一百八十蚊",jp:"jat1 baak3 baat3 sap6 man1",a:"$180",t:"price"},
+  {han:"三百六十蚊",jp:"saam1 baak3 luk6 sap6 man1",a:"$360",t:"price"},
   // --- times ---
   {han:"一點",jp:"jat1 dim2",a:"1:00",t:"time"},
   {han:"兩點",jp:"loeng5 dim2",a:"2:00",t:"time"},
@@ -760,6 +769,12 @@ export const NUMS: DojoNum[] =[
   {han:"十點",jp:"sap6 dim2",a:"10:00",t:"time"},
   {han:"十一點",jp:"sap6 jat1 dim2",a:"11:00",t:"time"},
   {han:"十二點半",jp:"sap6 ji6 dim2 bun3",a:"12:30",t:"time"},
+  {han:"十點半",jp:"sap6 dim2 bun3",a:"10:30",t:"time"},
+  // 點X counts five-minute marks — 三點三 is 3 o'clock plus three of them
+  {han:"三點三",jp:"saam1 dim2 saam1",a:"3:15",t:"time"},
+  {han:"兩點一",jp:"loeng5 dim2 jat1",a:"2:05",t:"time"},
+  {han:"五點九",jp:"ng5 dim2 gau2",a:"5:45",t:"time"},
+  {han:"七點六",jp:"cat1 dim2 luk6",a:"7:30",t:"time"},
   // --- quantities (with measure words) ---
   {han:"一個",jp:"jat1 go3",a:"1",t:"qty"},
   {han:"兩個",jp:"loeng5 go3",a:"2",t:"qty"},

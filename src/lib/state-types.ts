@@ -7,6 +7,16 @@ export interface SrsEntry {
   v: number; // current interval in days
 }
 export type Srs = Record<string, SrsEntry>; // vocabId ("ns|key") -> schedule
+/** A word the user caught in the wild — off a menu, a sign, a conversation.
+    Scheduled like course vocab, but its text lives here rather than in the
+    static registry. */
+export interface WildCard {
+  han: string;
+  jp: string;
+  en: string;
+  nt: string;
+  ts: number;
+}
 export interface Days {
   days: Record<string, 1 | "shield">; // "YYYY-MM-DD" -> completed | shield-bridged
   streak: number;

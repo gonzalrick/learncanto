@@ -12,22 +12,23 @@ export interface Translation {
 }
 
 const KEY = "canto.translations.v1";
+const YUE_KEY = "canto.translations.yue.v1";
 const MAX = 200;
 
 const norm = (s: string) => s.trim().replace(/\s+/g, " ");
 
-function loadCache(): Translation[] {
+function loadCache(key = KEY): Translation[] {
   try {
-    const list = JSON.parse(localStorage.getItem(KEY) || "[]");
+    const list = JSON.parse(localStorage.getItem(key) || "[]");
     return Array.isArray(list) ? list : [];
   } catch {
     return [];
   }
 }
 
-function saveCache(list: Translation[]) {
+function saveCache(list: Translation[], key = KEY) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX)));
+    localStorage.setItem(key, JSON.stringify(list.slice(0, MAX)));
   } catch {
     /* storage full/unavailable — translation still returned */
   }
@@ -41,6 +42,7 @@ export function recentTranslations(): Translation[] {
 export function clearTranslations() {
   try {
     localStorage.removeItem(KEY);
+    localStorage.removeItem(YUE_KEY);
   } catch {
     /* ignore */
   }
@@ -78,5 +80,44 @@ export async function translateEnglish(text: string): Promise<Translation> {
 
   const entry: Translation = { en, han, jp: await hanToJyutping(han), ts: Date.now() };
   saveCache([entry, ...cache.filter((t) => t.en.toLowerCase() !== key)]);
+  return entry;
+}
+
+/** Thrown when the server hasn't shipped the 粵→英 direction yet, so the UI can
+    offer a manual note instead of a dead end. */
+export class NoReverseTranslation extends Error {}
+
+/**
+ * 漢字 → English, for words caught off a sign or a menu. Jyutping is always
+ * derived locally, so a cached lookup is fully offline. Callers should try
+ * lookupHan() first — most of what a learner points at is already in the course.
+ */
+export async function translateHan(text: string): Promise<Translation> {
+  const han = norm(text);
+  if (!han) throw new Error("Nothing to look up");
+
+  const cache = loadCache(YUE_KEY);
+  const hit = cache.find((t) => t.han === han);
+  if (hit) return hit;
+
+  let res: Response;
+  try {
+    res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: han, dir: "yue2en" }),
+    });
+  } catch {
+    throw new Error("You're offline — words you've already looked up still work.");
+  }
+  // An older deployment ignores `dir` and hands back Cantonese for Cantonese.
+  if (res.status === 400 || res.status === 404) throw new NoReverseTranslation();
+  if (!res.ok) throw new Error("The translation service isn't reachable right now.");
+
+  const data = (await res.json()) as { en?: string; han?: string };
+  if (!data.en) throw new NoReverseTranslation();
+
+  const entry: Translation = { en: data.en, han, jp: await hanToJyutping(han), ts: Date.now() };
+  saveCache([entry, ...cache.filter((t) => t.han !== han)], YUE_KEY);
   return entry;
 }

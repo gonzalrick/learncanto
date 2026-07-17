@@ -1,12 +1,14 @@
 import { create } from "zustand";
 import type { VocabWord } from "../data/zones";
-import type { CharItem, EarItem } from "./session";
+import type { CharItem, EarItem, NumItem } from "./session";
 
 export type SessionItem =
-  | { t: "recall"; id: string; w: VocabWord; graded?: boolean }
+  // `ear` flips a review to audio-first — set only for mature cards, see markEar()
+  | { t: "recall"; id: string; w: VocabWord; graded?: boolean; ear?: boolean }
   | { t: "new"; id: string; w: VocabWord; stTitle: string }
   | { t: "listen"; e: EarItem }
-  | { t: "char"; c: CharItem };
+  | { t: "char"; c: CharItem }
+  | { t: "num"; n: NumItem };
 
 interface SessionStore {
   active: boolean;

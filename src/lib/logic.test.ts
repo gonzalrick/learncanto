@@ -2,17 +2,34 @@ import { describe, it, expect, beforeEach } from "vitest";
 import type { Days, KnownMap, Srs } from "./state-types";
 import { srsSeed, srsDue, srsDueOn, srsGrade, srsIntroduce, todayNum, hashStr } from "./srs";
 import { logToday, dstr } from "./streak";
-import { sessionPlan, earItems, charItems } from "./session";
-import { ZONES, VOCAB, currentStation, stationDone } from "../data/zones";
+import { sessionPlan, earItems, charItems, numItems } from "./session";
+import { markEar } from "./launch";
+import { NUMS } from "../data/dojo";
+import { ZONES, VOCAB, currentStation, stationDone, nextWordFeed } from "../data/zones";
 
 const t = todayNum();
 
 describe("registry", () => {
-  it("builds 6 zones incl. the elective reading branch", () => {
-    expect(ZONES.length).toBe(6);
+  it("builds 7 zones incl. the elective reading branch", () => {
+    expect(ZONES.length).toBe(7);
     expect(ZONES[1].id).toBe("chars");
     expect(ZONES[1].elective).toBe(true);
     expect(ZONES[3].elective).toBe(true); // family
+  });
+  it("carries the tourist zone as an elective side trip", () => {
+    const z = ZONES.find((x) => x.id === "tourist")!;
+    expect(z.elective).toBe(true); // must never feed the mainline word queue
+    expect(z.route).toBe("/tourist");
+    expect(z.stations.length).toBe(5);
+    // every tourist phrase is indexed and speakable
+    for (const st of z.stations) {
+      expect(st.vocab?.length).toBe(st.total);
+      for (const w of st.vocab!) expect(VOCAB["tourist|" + w.key]?.w.han).toBe(w.han);
+    }
+  });
+  it("keeps tourist phrases out of the new-word feed", () => {
+    const feed = nextWordFeed({}, {}, 40);
+    expect(feed.every((f) => f.st.ns !== "tourist")).toBe(true);
   });
   it("indexes character vocab", () => {
     expect(VOCAB["chars|pict:0"]?.w.han).toBe("人");
@@ -37,7 +54,64 @@ describe("fresh-user session plan", () => {
     expect(plan.fresh[0].st.id).toBe("blocks");
     expect(plan.ears.length).toBe(5);
     expect(plan.chars.length).toBe(5);
+    expect(plan.nums.length).toBe(3);
     expect(currentStation(known).id).toBe("how");
+  });
+});
+
+describe("audio-first reviews", () => {
+  const ids = ["a", "b", "c", "d", "e", "f"];
+  const srs: Srs = {
+    a: { d: t, v: 60 }, b: { d: t, v: 30 }, c: { d: t, v: 9 },
+    d: { d: t, v: 4 }, e: { d: t, v: 2 }, f: { d: t, v: 1 },
+  };
+
+  it("only flips cards that have survived to a 4-day interval", () => {
+    for (const id of markEar(ids, srs)) expect(srs[id].v).toBeGreaterThanOrEqual(4);
+  });
+  it("never flips more than half a queue", () => {
+    expect(markEar(ids, srs).size).toBe(3);
+    // even when every card is mature enough to qualify
+    const allMature = Object.fromEntries(ids.map((id) => [id, { d: t, v: 40 }]));
+    expect(markEar(ids, allMature).size).toBe(3);
+  });
+  it("picks the most mature cards first", () => {
+    expect([...markEar(ids, srs)].sort()).toEqual(["a", "b", "c"]);
+  });
+  it("leaves shaky and brand-new cards reading-first", () => {
+    const young: Srs = { x: { d: t, v: 1 }, y: { d: t, v: 2 }, z: { d: t, v: 2 } };
+    expect(markEar(["x", "y", "z"], young).size).toBe(0);
+  });
+  it("handles an empty queue and unknown ids", () => {
+    expect(markEar([], srs).size).toBe(0);
+    expect(markEar(["nope", "nope2"], {}).size).toBe(0);
+  });
+});
+
+describe("number items", () => {
+  it("draws every distractor from the prompt's own category", () => {
+    // a price answered with "3:30" would be a giveaway, not a test
+    for (const n of numItems(12)) {
+      const sameCat = new Set(NUMS.filter((x) => x.t === n.t).map((x) => x.a));
+      for (const o of n.opts) expect(sameCat.has(o), `${o} not a ${n.t}`).toBe(true);
+    }
+  });
+  it("puts the real answer at ok, once, among 4 distinct options", () => {
+    for (const n of numItems(12)) {
+      expect(n.opts.length).toBe(4);
+      expect(new Set(n.opts).size).toBe(4);
+      expect(n.opts[n.ok]).toBe(n.a);
+    }
+  });
+  it("never repeats a prompt within one session", () => {
+    const hans = numItems(8).map((n) => n.han);
+    expect(new Set(hans).size).toBe(hans.length);
+  });
+  it("carries the han and jyutping needed for the post-answer reveal", () => {
+    for (const n of numItems(6)) {
+      expect(n.han).toBeTruthy();
+      expect(n.jp).toBeTruthy();
+    }
   });
 });
 

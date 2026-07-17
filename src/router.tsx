@@ -27,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "family", element: <VocabLesson page="family" /> },
       { path: "beyond", element: <VocabLesson page="beyond" /> },
       { path: "conversational", element: <VocabLesson page="conversational" /> },
+      { path: "tourist", element: <VocabLesson page="tourist" /> },
     ],
   },
 ]);

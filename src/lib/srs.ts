@@ -1,18 +1,19 @@
 // Spaced-repetition scheduler — ported verbatim from the vanilla index.html.
 // Functions mutate the passed `srs` (and, on graduation, `known`) objects; the
 // store hands them fresh copies so React state stays immutable.
+//
+// Scheduled words are resolved through lookupVocab, not the static VOCAB index,
+// so words the user captured themselves ride the same schedule as the course's.
 
 import type { KnownMap, Srs } from "./state-types";
 import { VOCAB } from "../data/zones";
+import { lookupVocab } from "./vocab-lookup";
+
+export { hashStr } from "./hash";
+import { hashStr } from "./hash";
 
 export function todayNum(now: number = Date.now()): number {
   return Math.floor((now - new Date().getTimezoneOffset() * 6e4) / 864e5);
-}
-
-export function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
 }
 
 function markKnown(known: KnownMap, ns: string, key: string): void {
@@ -20,7 +21,9 @@ function markKnown(known: KnownMap, ns: string, key: string): void {
   known[ns][key] = 1;
 }
 
-/** Seeds existing checkmarks as long-interval reviews. Returns true if changed. */
+/** Seeds existing checkmarks as long-interval reviews. Returns true if changed.
+    Course words only — a captured word is scheduled the moment it's saved, and
+    is never "already known". */
 export function srsSeed(srs: Srs, known: KnownMap, t: number = todayNum()): boolean {
   let added = 0;
   for (const id of Object.keys(VOCAB)) {
@@ -36,12 +39,12 @@ export function srsSeed(srs: Srs, known: KnownMap, t: number = todayNum()): bool
 
 export function srsDue(srs: Srs, t: number = todayNum()): string[] {
   return Object.keys(srs)
-    .filter((id) => srs[id].d <= t && VOCAB[id])
+    .filter((id) => srs[id].d <= t && lookupVocab(id))
     .sort((a, b) => srs[a].d - srs[b].d);
 }
 
 export function srsDueOn(srs: Srs, day: number): number {
-  return Object.keys(srs).filter((id) => srs[id].d === day && VOCAB[id]).length;
+  return Object.keys(srs).filter((id) => srs[id].d === day && lookupVocab(id)).length;
 }
 
 export function srsGrade(
@@ -59,7 +62,7 @@ export function srsGrade(
     r.v = r.v ? Math.min(Math.round(r.v * 2.2), 120) : 1;
     r.d = t + r.v;
     if (r.v >= 7) {
-      const v = VOCAB[id];
+      const v = lookupVocab(id);
       if (v) markKnown(known, v.ns, v.w.key);
     }
   }

@@ -1,9 +1,10 @@
-// Daily session composition — 5 new + 5 ear reps + 5 character reps.
+// Daily session composition — 5 new + 5 ear reps + 5 character reps + 3 numbers.
 import type { KnownMap, Srs } from "./state-types";
-import { ITEMS } from "../data/dojo";
+import { ITEMS, NUMS } from "../data/dojo";
 import { LESSONS } from "../data/chars";
 import type { PictItem, StoryItem } from "../data/types";
-import { nextWordFeed, VOCAB, type Station, type Zone, type VocabWord } from "../data/zones";
+import { nextWordFeed, type Station, type Zone, type VocabWord } from "../data/zones";
+import { lookupVocab } from "./vocab-lookup";
 import { srsDue, todayNum } from "./srs";
 
 export interface EarOption {
@@ -93,6 +94,46 @@ export function charItems(n: number): CharItem[] {
   return out;
 }
 
+export interface NumItem {
+  han: string;
+  jp: string;
+  a: string; // the answer as written, e.g. "$28"
+  t: string; // category — distractors are drawn from it, and it picks the prompt
+  opts: string[];
+  ok: number;
+}
+
+/** Builds `n` "what number did you hear?" reps. Distractors come from the same
+    category so a price is never answered with a time — the hard part has to be
+    the digits, not the units. */
+export function numItems(n: number): NumItem[] {
+  if (!NUMS.length) return [];
+  const out: NumItem[] = [];
+  const used: Record<string, 1> = {};
+  let guard = 0;
+  while (out.length < n && guard++ < 200) {
+    const it = NUMS[Math.floor(Math.random() * NUMS.length)];
+    if (used[it.han]) continue;
+    used[it.han] = 1;
+    const pool = NUMS.filter((x) => x.t === it.t);
+    const opts = [it.a];
+    const seen: Record<string, 1> = { [it.a]: 1 };
+    let oguard = 0;
+    while (opts.length < 4 && oguard++ < 100) {
+      const o = pool[Math.floor(Math.random() * pool.length)];
+      if (seen[o.a]) continue;
+      seen[o.a] = 1;
+      opts.push(o.a);
+    }
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    out.push({ han: it.han, jp: it.jp, a: it.a, t: it.t, opts, ok: opts.indexOf(it.a) });
+  }
+  return out;
+}
+
 export interface FreshWord {
   id: string;
   w: VocabWord;
@@ -104,6 +145,7 @@ export interface SessionPlan {
   fresh: FreshWord[];
   ears: EarItem[];
   chars: CharItem[];
+  nums: NumItem[];
 }
 
 export function sessionPlan(srs: Srs, known: KnownMap, t: number = todayNum()): SessionPlan {
@@ -112,9 +154,10 @@ export function sessionPlan(srs: Srs, known: KnownMap, t: number = todayNum()): 
   const fresh = nextWordFeed(known, srs, 5);
   const ears = earItems(5);
   const chars = charItems(5);
-  return { reviews, fresh, ears, chars };
+  const nums = numItems(3);
+  return { reviews, fresh, ears, chars, nums };
 }
 
 export function reviewWord(id: string): VocabWord | undefined {
-  return VOCAB[id]?.w;
+  return lookupVocab(id)?.w;
 }

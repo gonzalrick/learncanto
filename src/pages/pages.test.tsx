@@ -92,9 +92,65 @@ describe("page render smoke tests", () => {
     }
   });
 
-  it.each(["basics", "beyond", "conversational", "family"])("VocabLesson[%s] renders", (page) => {
-    wrap(<VocabLesson page={page} />);
-    // each vocab page shows at least one deck chip / tab
-    expect(screen.getAllByRole("button").length).toBeGreaterThan(2);
+  it.each(["basics", "beyond", "conversational", "family", "tourist"])(
+    "VocabLesson[%s] renders",
+    (page) => {
+      wrap(<VocabLesson page={page} />);
+      // each vocab page shows at least one deck chip / tab
+      expect(screen.getAllByRole("button").length).toBeGreaterThan(2);
+    },
+  );
+
+  it("Tourist renders the survival decks", () => {
+    wrap(<VocabLesson page="tourist" />);
+    expect(screen.getByText("Hong Kong Survival")).toBeInTheDocument();
+    expect(screen.getByText("八達通")).toBeInTheDocument(); // first deck, first card
+  });
+
+  it("Today surfaces the tourist deck for the hour", () => {
+    vi.setSystemTime(new Date(2026, 6, 18, 8, 30)); // breakfast
+    try {
+      wrap(<Today />);
+      expect(screen.getByText(/Breakfast run/)).toBeInTheDocument();
+      expect(screen.getByText(/All ordering food phrases/i)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("Today swaps that deck as the day moves on", () => {
+    vi.setSystemTime(new Date(2026, 6, 18, 12, 0)); // midday, on the move
+    try {
+      wrap(<Today />);
+      expect(screen.getByText(/On the move/)).toBeInTheDocument();
+      expect(screen.getByText(/All getting around phrases/i)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("Search offers to catch 中文 the course doesn't teach", async () => {
+    wrap(<Search />);
+    await userEvent.type(screen.getByPlaceholderText(/try "thank you"/), "呢度嘅奶茶好正");
+    expect(await screen.findByText(/Heard it in the wild/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /What does it mean/ })).toBeInTheDocument();
+    // and it points out the bit already learned, without claiming it's the meaning
+    expect(screen.getByText(/You already know/)).toBeInTheDocument();
+  });
+
+  it("Search recognises 中文 the course does teach", async () => {
+    wrap(<Search />);
+    await userEvent.type(screen.getByPlaceholderText(/try "thank you"/), "早晨");
+    // an exact course phrase is a plain search hit, not a capture prompt
+    expect(screen.queryByText(/Heard it in the wild/)).not.toBeInTheDocument();
+  });
+
+  it("Practice lists words caught in the wild once there are any", () => {
+    expect(screen.queryByText(/My words/)).not.toBeInTheDocument();
+    useStore.getState().addWild({ han: "蛋撻", jp: "daan6 taat1", en: "egg tart", nt: "" });
+    wrap(<Practice />);
+    expect(screen.getByText(/My words/)).toBeInTheDocument();
+    expect(screen.getByText("蛋撻")).toBeInTheDocument();
+    expect(screen.getByText("due tomorrow")).toBeInTheDocument();
   });
 });

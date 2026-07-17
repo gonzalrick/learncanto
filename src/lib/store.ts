@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Days, KnownMap, Srs } from "./state-types";
+import type { Days, KnownMap, Srs, WildCard } from "./state-types";
 import { srsGrade, srsIntroduce, srsSeed } from "./srs";
+import { registerWild, wildId } from "./vocab-lookup";
 import { logToday } from "./streak";
 
 function cloneKnown(known: KnownMap): KnownMap {
@@ -14,6 +15,7 @@ interface AppState {
   known: KnownMap;
   srs: Srs;
   days: Days;
+  wild: WildCard[];
 
   /** Lesson pages: mark/unmark a single item known. */
   setKnown: (ns: string, key: string, val: boolean) => void;
@@ -27,6 +29,10 @@ interface AppState {
   logDay: () => void;
   /** Seed existing checkmarks into the SRS as long-interval reviews. */
   seed: () => void;
+  /** Capture a word from the wild and schedule it for tomorrow. */
+  addWild: (card: Omit<WildCard, "ts">) => void;
+  /** Drop a captured word and its schedule. */
+  removeWild: (han: string) => void;
   /** Reset everything (also clears the persisted store + service worker caches upstream). */
   reset: () => void;
 }
@@ -39,6 +45,7 @@ export const useStore = create<AppState>()(
       known: {},
       srs: {},
       days: emptyDays(),
+      wild: [],
 
       setKnown: (ns, key, val) =>
         set((s) => {
@@ -90,13 +97,51 @@ export const useStore = create<AppState>()(
           return {};
         }),
 
-      reset: () => set({ known: {}, srs: {}, days: emptyDays() }),
+      addWild: (card) =>
+        set((s) => {
+          const han = card.han.trim();
+          if (!han) return {};
+          // one entry per phrase — re-saving refreshes the text, not the schedule
+          const wild = [
+            { ...card, han, ts: Date.now() },
+            ...s.wild.filter((w) => w.han !== han),
+          ];
+          registerWild(wild);
+          const srs = { ...s.srs };
+          srsIntroduce(srs, wildId(han)); // due tomorrow, like any new word
+          return { wild, srs };
+        }),
+
+      removeWild: (han) =>
+        set((s) => {
+          const wild = s.wild.filter((w) => w.han !== han);
+          registerWild(wild);
+          const srs = { ...s.srs };
+          delete srs[wildId(han)];
+          return { wild, srs };
+        }),
+
+      reset: () => {
+        registerWild([]);
+        set({ known: {}, srs: {}, days: emptyDays(), wild: [] });
+      },
     }),
     {
       name: "canto:v2",
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ known: s.known, srs: s.srs, days: s.days }),
+      partialize: (s) => ({ known: s.known, srs: s.srs, days: s.days, wild: s.wild }),
+      // v1 predates captured words; everything else carries over untouched.
+      migrate: (persisted, version) => {
+        const s = (persisted ?? {}) as Partial<AppState>;
+        if (version < 2) return { ...s, wild: [] };
+        return s;
+      },
+      // localStorage rehydration is synchronous, but the registry has to be
+      // populated before anything reads the schedule off the restored state.
+      onRehydrateStorage: () => (state) => {
+        registerWild(state?.wild ?? []);
+      },
     },
   ),
 );

@@ -11,6 +11,7 @@ import { FamilyLesson } from "./Family";
 import { DECKS as BASICS, TONES } from "../data/basics";
 import { DECKS as BEYOND, SCENES, GRAMMAR } from "../data/beyond";
 import { DECKS as CONV, PARTICLES, BUILDER, PATTERNS } from "../data/conv";
+import { DECKS as TOURIST } from "../data/tourist";
 import {
   TonesPanel,
   ScenesPanel,
@@ -62,6 +63,11 @@ const CONFIGS: Record<string, Config> = {
       { id: "builder", label: "Builder", ji: "砌句", where: "before", render: () => <BuilderPanel builder={BUILDER} /> },
       { id: "patterns", label: "Patterns", ji: "句式", where: "before", render: () => <PatternsPanel patterns={PATTERNS} /> },
     ],
+  },
+  tourist: {
+    ns: "tourist", accent: "var(--tourist)", eyebrow: "Day trip · survive Hong Kong", title: "Hong Kong Survival", hk: "遊香港",
+    decks: TOURIST, keyPrefix: (id) => id + ":", learnLabel: "Phrases", learnJi: "句",
+    extras: [],
   },
 };
 

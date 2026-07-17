@@ -20,6 +20,7 @@ interface Indexed extends DictEntry {
   enTokens: string[];
   jpSyls: string[]; // tone numbers stripped: "nei5 hou2" → ["nei","hou"]
   jpBare: string; // jpSyls joined: "nei hou"
+  hanBare: string; // punctuation stripped: "唔該,埋單" → "唔該埋單"
 }
 
 const norm = (s: string) =>
@@ -27,6 +28,11 @@ const norm = (s: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9一-鿿]+/g, " ")
     .trim();
+
+/** Characters with the punctuation taken out. Text copied off a menu or a sign
+    never carries the commas we write phrases with, so nothing may hang on them:
+    "唔該,埋單" and "唔該埋單。" have to be the same string to match against. */
+export const bareHan = (s: string) => s.toLowerCase().replace(/[^a-z0-9㐀-鿿]/g, "");
 
 const INDEX: Indexed[] = [];
 const seen = new Set<string>();
@@ -47,6 +53,7 @@ function add(han: string, jp: string, en: string, nt: string, zone: string, cv: 
     enTokens: enNorm.split(" ").filter(Boolean),
     jpSyls,
     jpBare: jpSyls.join(" "),
+    hanBare: bareHan(han),
   });
 }
 
@@ -56,6 +63,29 @@ ZONES.forEach((z) =>
 DOJO.forEach((it) => add(String(it[0]), String(it[1]), String(it[2]), "", "Listening Dojo", "var(--dojo)"));
 
 export const DICTIONARY: readonly DictEntry[] = INDEX;
+
+/** The course entry for exactly this 漢字, if it teaches it. Offline and free —
+    most of what a learner points at in Hong Kong is already in here. */
+export function lookupHan(han: string): DictEntry | undefined {
+  const q = bareHan(han);
+  if (!q) return undefined;
+  return INDEX.find((e) => e.hanBare === q);
+}
+
+/** The longest course word sitting *inside* a longer phrase. Only ever a hint
+    ("you already know 奶茶 in there") — never the phrase's meaning, which is a
+    different thing entirely. */
+export function knownWordIn(han: string): DictEntry | undefined {
+  const q = bareHan(han);
+  if (!q) return undefined;
+  let best: Indexed | undefined;
+  for (const e of INDEX) {
+    // single characters are too noisy to be worth pointing at
+    if (e.hanBare.length < 2 || e.hanBare === q || !q.includes(e.hanBare)) continue;
+    if (!best || e.hanBare.length > best.hanBare.length) best = e;
+  }
+  return best;
+}
 
 function editDistance(a: string, b: string): number {
   const row = Array.from({ length: b.length + 1 }, (_, j) => j);
@@ -76,7 +106,7 @@ const typoCap = (t: string) => (t.length >= 7 ? 2 : t.length >= 4 ? 1 : 0);
 
 /** Best match strength of one query token against one entry, 0 = no match. */
 function scoreToken(e: Indexed, t: string): number {
-  if (e.han.includes(t)) return 1; // pasted 中文
+  if (e.hanBare.includes(bareHan(t))) return 1; // pasted 中文, punctuation or not
   let best = 0;
   for (const w of e.enTokens) {
     if (w === t) return 1;
@@ -112,6 +142,9 @@ export function searchDictionary(query: string, limit = 40): DictEntry[] {
   // (tone digits, or several syllables) — a lone "go" should stay English-first.
   const qBare = qTokens.map((t) => t.replace(/[1-6]$/, "")).join(" ");
   const jpish = qTokens.length > 1 || /[1-6]/.test(qNorm);
+  // Pasting a phrase's own characters should surface that phrase, not something
+  // that merely happens to contain the same two words in another order.
+  const qHan = bareHan(query);
 
   const hits: Array<{ e: Indexed; s: number }> = [];
   for (const e of INDEX) {
@@ -126,7 +159,9 @@ export function searchDictionary(query: string, limit = 40): DictEntry[] {
     }
     if (!s) continue;
     s /= qTokens.length;
-    if (e.enNorm === qNorm || (jpish && e.jpBare === qBare)) s += 1;
+    if (qHan && e.hanBare === qHan) s += 2;
+    else if (e.enNorm === qNorm || (jpish && e.jpBare === qBare)) s += 1;
+    else if (qHan && e.hanBare.startsWith(qHan)) s += 0.5;
     else if (e.enNorm.startsWith(qNorm) || (jpish && e.jpBare.startsWith(qBare))) s += 0.4;
     else if (e.enNorm.includes(qNorm)) s += 0.2;
     hits.push({ e, s });

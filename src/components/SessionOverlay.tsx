@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useSession, type SessionItem } from "../lib/session-store";
 import { useStore } from "../lib/store";
 import { srsDueOn, todayNum } from "../lib/srs";
+import { isWild } from "../lib/vocab-lookup";
 import { dstr } from "../lib/streak";
 import { speak, cancelSpeech } from "../lib/speech";
 import { ding } from "../lib/sfx";
 import { Jyutping } from "./Jyutping";
-import { IconX, IconSpeaker, IconPlay } from "./icons";
+import { IconX, IconSpeaker, IconPlay, IconSlow } from "./icons";
 
-type Stats = { rev: number; fresh: number; ear: number; char: number };
+type Stats = { rev: number; fresh: number; ear: number; char: number; num: number };
 
 /** Thin wrapper: mounts a fresh SessionRunner (keyed by runId) whenever a
     session opens, so the runner initializes its queue synchronously. */
@@ -39,7 +40,7 @@ function SessionRunner({
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [done, setDone] = useState(false);
-  const stats = useRef<Stats>({ rev: 0, fresh: 0, ear: 0, char: 0 });
+  const stats = useRef<Stats>({ rev: 0, fresh: 0, ear: 0, char: 0, num: 0 });
   const doneInfo = useRef<{ prevStreak: number; newStreak: number; hadToday: boolean; dueTomorrow: number } | null>(null);
 
   // Browser/hardware back closes the session.
@@ -77,7 +78,8 @@ function SessionRunner({
   };
 
   const it = queue[pos];
-  const totalStrength = stats.current.rev + stats.current.fresh + stats.current.ear + stats.current.char;
+  const s = stats.current;
+  const totalStrength = s.rev + s.fresh + s.ear + s.char + s.num;
   if (!done && !it) return null; // empty queue guard (shouldn't happen for real sessions)
 
   return (
@@ -156,6 +158,15 @@ function SessionRunner({
               advance();
             }}
           />
+        ) : it.t === "num" ? (
+          <NumCard
+            key={pos}
+            item={it}
+            onCorrect={() => {
+              stats.current.num++;
+              advance();
+            }}
+          />
         ) : (
           <CharCard
             key={pos}
@@ -173,9 +184,19 @@ function SessionRunner({
 
 const tagFor = (it: SessionItem) =>
   it.t === "recall" ? (
-    <>
-      <span className="text-acc2">Review</span> — about to fade
-    </>
+    isWild(it.id) ? (
+      <>
+        <span style={{ color: "var(--tourist)" }}>Your word</span> — caught in the wild
+      </>
+    ) : it.ear ? (
+      <>
+        <span className="text-acc2">Review</span> — by ear
+      </>
+    ) : (
+      <>
+        <span className="text-acc2">Review</span> — about to fade
+      </>
+    )
   ) : it.t === "new" ? (
     <>
       <span className="text-t3">New word</span>
@@ -185,11 +206,25 @@ const tagFor = (it: SessionItem) =>
     <>
       <span className="text-t4">Ear rep</span> — what did you hear?
     </>
+  ) : it.t === "num" ? (
+    <>
+      <span className="text-dojo">Numbers</span> — no reading this one
+    </>
   ) : (
     <>
       <span className="text-chars">Character</span> — what does it mean?
     </>
   );
+
+/** The prompt a number rep opens with, by category. */
+const numPrompt = (t: string) =>
+  t === "price"
+    ? "How much did they say?"
+    : t === "time"
+      ? "What time did they say?"
+      : t === "qty"
+        ? "How many did they say?"
+        : "Which number did they say?";
 
 const cardBase =
   "flex flex-1 flex-col items-center justify-center overflow-y-auto rounded-[26px] border border-line2 bg-surface p-[22px] text-center";
@@ -217,6 +252,24 @@ function RecallCard({
   onGood: () => void;
 }) {
   const w = item.w;
+  // Audio-first reviews hide the characters until the card is flipped, so the
+  // only cue is the sound — the way the word actually arrives on the street.
+  // `peek` shows them without giving the meaning away, for when the ear fails.
+  const [peek, setPeek] = useState(false);
+  const earFront = !!item.ear && !flipped && !peek;
+  const playRef = useRef<HTMLButtonElement>(null);
+  // Flipping speaks too, so a fast tap could collide with the opening autoplay.
+  const flippedRef = useRef(flipped);
+  flippedRef.current = flipped;
+  useEffect(() => {
+    if (!item.ear) return;
+    const t = setTimeout(() => {
+      if (flippedRef.current) return;
+      pulse(playRef.current);
+      speak(w.han);
+    }, 420);
+    return () => clearTimeout(t);
+  }, [item.ear, w.han]);
   return (
     <>
       <div className={tagBase}>{tagFor(item)}</div>
@@ -233,9 +286,44 @@ function RecallCard({
         }}
         className={cardBase + " cursor-pointer"}
       >
-        <div className="font-hk text-[clamp(34px,11vw,54px)] font-semibold leading-[1.2]">{w.han}</div>
+        {earFront ? (
+          <button
+            ref={playRef}
+            aria-label="Play audio"
+            onClick={(e) => {
+              e.stopPropagation();
+              pulse(playRef.current);
+              speak(w.han);
+            }}
+            className="grid h-[78px] w-[78px] place-items-center rounded-full text-acc2"
+            style={{ background: "color-mix(in srgb, var(--acc) 24%, var(--surface2))" }}
+          >
+            <IconPlay className="h-[31px] w-[31px]" />
+          </button>
+        ) : (
+          <div className="font-hk text-[clamp(34px,11vw,54px)] font-semibold leading-[1.2]">{w.han}</div>
+        )}
         {!flipped ? (
-          <div className="mt-[18px] text-xs text-mut">Tap the card — do you remember it?</div>
+          item.ear ? (
+            <div className="mt-[18px] flex flex-col items-center gap-3">
+              <div className="text-xs text-mut">
+                {peek ? "Tap the card — do you remember it?" : "Listen — do you know what it means?"}
+              </div>
+              {!peek && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPeek(true);
+                  }}
+                  className="rounded-full border border-line bg-surface2 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[.12em] text-mut"
+                >
+                  Show the characters
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="mt-[18px] text-xs text-mut">Tap the card — do you remember it?</div>
+          )
         ) : (
           <div className="mt-4 flex flex-col items-center gap-1.5">
             <Jyutping jp={w.jp} className="font-mono text-lg" />
@@ -341,6 +429,60 @@ function ListenCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "list
   );
 }
 
+/** Numbers by ear only: unlike the ear rep, the 漢字 stays hidden until the
+    answer is in — on the street nobody shows you the price, they just say it.
+    A slow replay is one tap away, because that's the real repair strategy. */
+function NumCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "num" }>; onCorrect: () => void }) {
+  const n = item.n;
+  const [revealed, setRevealed] = useState(false);
+  const playRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      pulse(playRef.current);
+      speak(n.han);
+    }, 420);
+    return () => clearTimeout(t);
+  }, [n.han]);
+  return (
+    <>
+      <div className={tagBase}>{tagFor(item)}</div>
+      <div className={cardBase}>
+        <div className="mb-4 text-[13.5px] text-ink2">{numPrompt(n.t)}</div>
+        <button
+          ref={playRef}
+          aria-label="Play audio"
+          onClick={() => {
+            pulse(playRef.current);
+            speak(n.han);
+          }}
+          className="grid h-[78px] w-[78px] place-items-center rounded-full text-dojo"
+          style={{ background: "color-mix(in srgb, var(--dojo) 24%, var(--surface2))" }}
+        >
+          <IconPlay className="h-[31px] w-[31px]" />
+        </button>
+        <button
+          onClick={() => speak(n.han, 0.5)}
+          className="mt-3.5 flex items-center gap-1.5 rounded-full border border-line bg-surface2 px-3.5 py-1.5 font-mono text-[10.5px] uppercase tracking-[.12em] text-ink2"
+        >
+          <IconSlow className="h-3 w-3" />
+          Slower
+        </button>
+
+        {revealed ? (
+          <div className="mt-4 flex flex-col items-center gap-1">
+            <span className="font-hk text-[26px] font-semibold leading-tight">{n.han}</span>
+            <Jyutping jp={n.jp} className="font-mono text-[13px]" />
+          </div>
+        ) : (
+          <div className="mt-4 text-xs text-mut">Listen — the characters come after you answer.</div>
+        )}
+
+        <Choices opts={n.opts} ok={n.ok} cols={2} onReveal={() => setRevealed(true)} onCorrect={onCorrect} />
+      </div>
+    </>
+  );
+}
+
 function CharCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "char" }>; onCorrect: () => void }) {
   const c = item.c;
   return (
@@ -366,14 +508,32 @@ function CharCard({ item, onCorrect }: { item: Extract<SessionItem, { t: "char" 
 }
 
 /** Multiple-choice answers: a right pick flashes green + chimes, then advances
-    after a beat so the correct answer registers before the card changes. */
-function Choices({ opts, ok, onCorrect }: { opts: string[]; ok: number; onCorrect: () => void }) {
+    after a beat so the correct answer registers before the card changes.
+    `onReveal` fires on that right pick, for cards that hold something back
+    until it's answered; `cols` goes to 2 for short answers like prices. */
+function Choices({
+  opts,
+  ok,
+  onCorrect,
+  onReveal,
+  cols = 1,
+}: {
+  opts: string[];
+  ok: number;
+  onCorrect: () => void;
+  onReveal?: () => void;
+  cols?: 1 | 2;
+}) {
   const [wrong, setWrong] = useState<Set<number>>(new Set());
   const [right, setRight] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   return (
-    <div className="mt-[18px] flex w-full flex-col gap-2.5">
+    <div
+      className={
+        "mt-[18px] grid w-full gap-2.5 " + (cols === 2 ? "grid-cols-2" : "grid-cols-1")
+      }
+    >
       {opts.map((o, i) => {
         const hit = right && i === ok;
         return (
@@ -383,6 +543,7 @@ function Choices({ opts, ok, onCorrect }: { opts: string[]; ok: number; onCorrec
             onClick={() => {
               if (i !== ok) return setWrong((w) => new Set(w).add(i));
               setRight(true);
+              onReveal?.();
               ding();
               timer.current = setTimeout(onCorrect, 750);
             }}
